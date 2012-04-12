@@ -1,2 +1,2 @@
-termcap    binary
-profile    binary
+termcap    text eol=lf
+profile    text eol=lf
