@@ -27,7 +27,7 @@ BEGIN {
 	CGI->compile() if $ENV{'MOD_PERL'};
 }
 
-our $version = "1.7.9.rc0.5099.g578cb1";
+our $version = "1.7.9.msysgit.0.27.ge92cd";
 
 our ($my_url, $my_uri, $base_url, $path_info, $home_link);
 sub evaluate_uri {
@@ -1123,8 +1123,10 @@ sub dispatch {
 	if (!defined $action) {
 		if (defined $hash) {
 			$action = git_get_type($hash);
+			$action or die_error(404, "Object does not exist");
 		} elsif (defined $hash_base && defined $file_name) {
 			$action = git_get_type("$hash_base:$file_name");
+			$action or die_error(404, "File or directory does not exist");
 		} elsif (defined $project) {
 			$action = 'summary';
 		} else {
@@ -2391,7 +2393,7 @@ sub get_feed_info {
 	return unless (defined $project);
 	# some views should link to OPML, or to generic project feed,
 	# or don't have specific feed yet (so they should use generic)
-	return if ($action =~ /^(?:tags|heads|forks|tag|search)$/x);
+	return if (!$action || $action =~ /^(?:tags|heads|forks|tag|search)$/x);
 
 	my $branch;
 	# branches refs uses 'refs/heads/' prefix (fullname) to differentiate
@@ -5859,7 +5861,7 @@ sub git_search_files {
 	my %co = @_;
 
 	local $/ = "\n";
-	open my $fd, "-|", git_cmd(), 'grep', '-n',
+	open my $fd, "-|", git_cmd(), 'grep', '-n', '-z',
 		$search_use_regexp ? ('-E', '-i') : '-F',
 		$searchtext, $co{'tree'}
 			or die_error(500, "Open git-grep failed");
@@ -5875,13 +5877,14 @@ sub git_search_files {
 	my $lastfile = '';
 	while (my $line = <$fd>) {
 		chomp $line;
-		my ($file, $lno, $ltext, $binary);
+		my ($file, $file_href, $lno, $ltext, $binary);
 		last if ($matches++ > 1000);
 		if ($line =~ /^Binary file (.+) matches$/) {
 			$file = $1;
 			$binary = 1;
 		} else {
-			(undef, $file, $lno, $ltext) = split(/:/, $line, 4);
+			($file, $lno, $ltext) = split(/\0/, $line, 3);
+			$file =~ s/^$co{'tree'}://;
 		}
 		if ($file ne $lastfile) {
 			$lastfile and print "</td></tr>\n";
@@ -5890,10 +5893,10 @@ sub git_search_files {
 			} else {
 				print "<tr class=\"light\">\n";
 			}
+			$file_href = href(action=>"blob", hash_base=>$co{'id'},
+			                  file_name=>$file);
 			print "<td class=\"list\">".
-				$cgi->a({-href => href(action=>"blob", hash=>$co{'hash'},
-						       file_name=>"$file"),
-					-class => "list"}, esc_path($file));
+				$cgi->a({-href => $file_href, -class => "list"}, esc_path($file));
 			print "</td><td>\n";
 			$lastfile = $file;
 		}
@@ -5911,10 +5914,9 @@ sub git_search_files {
 				$ltext = esc_html($ltext, -nbsp=>1);
 			}
 			print "<div class=\"pre\">" .
-				$cgi->a({-href => href(action=>"blob", hash=>$co{'hash'},
-						       file_name=>"$file").'#l'.$lno,
-					-class => "linenr"}, sprintf('%4i', $lno))
-				. ' ' .  $ltext . "</div>\n";
+				$cgi->a({-href => $file_href.'#l'.$lno,
+				        -class => "linenr"}, sprintf('%4i', $lno)) .
+				' ' .  $ltext . "</div>\n";
 		}
 	}
 	if ($lastfile) {

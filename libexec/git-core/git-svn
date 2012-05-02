@@ -9,7 +9,7 @@ use vars qw/	$AUTHOR $VERSION
 		$sha1 $sha1_short $_revision $_repository
 		$_q $_authors $_authors_prog %users/;
 $AUTHOR = 'Eric Wong <normalperson@yhbt.net>';
-$VERSION = '1.7.9-rc0';
+$VERSION = '1.7.9.msysgit.0.27.ge92cd';
 
 # From which subdir have we been invoked?
 my $cmd_dir_prefix = eval {
