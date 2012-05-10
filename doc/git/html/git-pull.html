@@ -700,28 +700,52 @@ inspect and further tweak the merge result before committing.</p></div>
 --edit
 </dt>
 <dt class="hdlist1">
--e
+--no-edit
 </dt>
 <dd>
 <p>
-        Invoke editor before committing successful merge to further
-        edit the default merge message.
+        Invoke an editor before committing successful mechanical merge to
+        further edit the auto-generated merge message, so that the user
+        can explain and justify the merge. The <tt>--no-edit</tt> option can be
+        used to accept the auto-generated message (this is generally
+        discouraged). The <tt>--edit</tt> option is still useful if you are
+        giving a draft message with the <tt>-m</tt> option from the command line
+        and want to edit it in the editor.
 </p>
+<div class="paragraph"><p>Older scripts may depend on the historical behaviour of not allowing the
+user to edit the merge log message. They will see an editor opened when
+they run <tt>git merge</tt>. To make it easier to adjust such scripts to the
+updated behaviour, the environment variable <tt>GIT_MERGE_AUTOEDIT</tt> can be
+set to <tt>no</tt> at the beginning of them.</p></div>
 </dd>
 <dt class="hdlist1">
 --ff
 </dt>
+<dd>
+<p>
+        When the merge resolves as a fast-forward, only update the branch
+        pointer, without creating a merge commit.  This is the default
+        behavior.
+</p>
+</dd>
 <dt class="hdlist1">
 --no-ff
 </dt>
 <dd>
 <p>
-        Do not generate a merge commit if the merge resolved as
-        a fast-forward, only update the branch pointer. This is
-        the default behavior of git-merge.
+        Create a merge commit even when the merge resolves as a
+        fast-forward.
 </p>
-<div class="paragraph"><p>With --no-ff Generate a merge commit even if the merge
-resolved as a fast-forward.</p></div>
+</dd>
+<dt class="hdlist1">
+--ff-only
+</dt>
+<dd>
+<p>
+        Refuse to merge and exit with a non-zero status unless the
+        current <tt>HEAD</tt> is already up-to-date or the merge can be
+        resolved as a fast-forward.
+</p>
 </dd>
 <dt class="hdlist1">
 --log[=&lt;n&gt;]
@@ -774,16 +798,6 @@ merge.</p></div>
 </p>
 <div class="paragraph"><p>With --no-squash perform the merge and commit the result. This
 option can be used to override --squash.</p></div>
-</dd>
-<dt class="hdlist1">
---ff-only
-</dt>
-<dd>
-<p>
-        Refuse to merge and exit with a non-zero status unless the
-        current <tt>HEAD</tt> is already up-to-date or the merge can be
-        resolved as a fast-forward.
-</p>
 </dd>
 <dt class="hdlist1">
 -s &lt;strategy&gt;

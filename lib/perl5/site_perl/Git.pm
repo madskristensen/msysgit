@@ -58,7 +58,7 @@ require Exporter;
                 command_output_pipe command_input_pipe command_close_pipe
                 command_bidi_pipe command_close_bidi_pipe
                 version exec_path html_path hash_object git_cmd_try
-                remote_refs prompt
+                remote_refs
                 temp_acquire temp_release temp_reset temp_path);
 
 
@@ -512,55 +512,6 @@ C<git --html-path>). Useful mostly only internally.
 sub html_path { command_oneline('--html-path') }
 
 
-=item prompt ( PROMPT )
-
-Query user C<PROMPT> and return answer from user.
-
-If an external helper is specified via GIT_ASKPASS or SSH_ASKPASS, it
-is used to interact with the user; otherwise the prompt is given to
-and the answer is read from the terminal.
-
-=cut
-
-sub prompt {
-	my ($prompt) = @_;
-	my $ret;
-	if (!defined $ret) {
-		$ret = _prompt($ENV{'GIT_ASKPASS'}, $prompt);
-	}
-	if (!defined $ret) {
-		$ret = _prompt($ENV{'SSH_ASKPASS'}, $prompt);
-	}
-	if (!defined $ret) {
-		$ret = '';
-		print STDERR $prompt;
-		STDERR->flush;
-		require Term::ReadKey;
-		Term::ReadKey::ReadMode('noecho');
-		while (defined(my $key = Term::ReadKey::ReadKey(0))) {
-			last if $key =~ /[\012\015]/; # \n\r
-			$ret .= $key;
-		}
-		Term::ReadKey::ReadMode('restore');
-		print STDERR "\n";
-		STDERR->flush;
-	}
-	return $ret;
-}
-
-sub _prompt {
-	my ($askpass, $prompt) = @_;
-	return unless ($askpass);
-
-	open my $fh, "-|", $askpass, $prompt
-		or return;
-	my $ret = <$fh>;
-	$ret =~ s/[\012\015]//g; # \n\r
-	close ($fh);
-	return $ret;
-}
-
-
 =item repo_path ()
 
 Return path to the git repository. Must be called on a repository instance.
@@ -740,7 +691,7 @@ The hash is in the format C<refname =\> hash>. For tags, the C<refname> entry
 contains the tag object while a C<refname^{}> entry gives the tagged objects.
 
 C<REPOSITORY> has the same meaning as the appropriate C<git-ls-remote>
-argument; either an URL or a remote name (if called on a repository instance).
+argument; either a URL or a remote name (if called on a repository instance).
 C<GROUPS> is an optional arrayref that can contain 'tags' to return all the
 tags and/or 'heads' to return all the heads. C<REFGLOB> is an optional array
 of strings containing a shell-like glob to further limit the refs returned in

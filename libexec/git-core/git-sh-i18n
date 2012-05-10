@@ -21,7 +21,7 @@ GIT_INTERNAL_GETTEXT_SH_SCHEME=fallthrough
 if test -n "fallthrough"
 then
 	GIT_INTERNAL_GETTEXT_SH_SCHEME="fallthrough"
-elif test -n "@@USE_FALLTHROUGH_GETTEXT_SCHEME@@$GIT_INTERNAL_GETTEXT_TEST_FALLBACKS"
+elif test -n "$GIT_INTERNAL_GETTEXT_TEST_FALLBACKS"
 then
 	: no probing necessary
 elif test -n "$GIT_GETTEXT_POISON"
