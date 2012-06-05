@@ -134,6 +134,7 @@ libexec/git-core/git-cherry-pick.exe
 libexec/git-core/git-cherry.exe
 libexec/git-core/git-clean.exe
 libexec/git-core/git-clone.exe
+libexec/git-core/git-column.exe
 libexec/git-core/git-commit-tree.exe
 libexec/git-core/git-commit.exe
 libexec/git-core/git-config.exe

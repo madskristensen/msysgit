@@ -9,7 +9,7 @@ use vars qw/	$AUTHOR $VERSION
 		$sha1 $sha1_short $_revision $_repository
 		$_q $_authors $_authors_prog %users/;
 $AUTHOR = 'Eric Wong <normalperson@yhbt.net>';
-$VERSION = '1.7.10.msysgit.1';
+$VERSION = '1.7.11.rc0.6842.g50cd4fe';
 
 # From which subdir have we been invoked?
 my $cmd_dir_prefix = eval {
@@ -37,11 +37,33 @@ $ENV{TZ} = 'UTC';
 $| = 1; # unbuffer STDOUT
 
 sub fatal (@) { print STDERR "@_\n"; exit 1 }
+
+# All SVN commands do it.  Otherwise we may die on SIGPIPE when the remote
+# repository decides to close the connection which we expect to be kept alive.
+$SIG{PIPE} = 'IGNORE';
+
+# Given a dot separated version number, "subtract" it from
+# the SVN::Core::VERSION; non-negaitive return means the SVN::Core
+# is at least at the version the caller asked for.
+sub compare_svn_version {
+	my (@ours) = split(/\./, $SVN::Core::VERSION);
+	my (@theirs) = split(/\./, $_[0]);
+	my ($i, $diff);
+
+	for ($i = 0; $i < @ours && $i < @theirs; $i++) {
+		$diff = $ours[$i] - $theirs[$i];
+		return $diff if ($diff);
+	}
+	return 1 if ($i < @ours);
+	return -1 if ($i < @theirs);
+	return 0;
+}
+
 sub _req_svn {
 	require SVN::Core; # use()-ing this causes segfaults for me... *shrug*
 	require SVN::Ra;
 	require SVN::Delta;
-	if ($SVN::Core::VERSION lt '1.1.0') {
+	if (::compare_svn_version('1.1.0') < 0) {
 		fatal "Need SVN::Core 1.1.0 or better (got $SVN::Core::VERSION)";
 	}
 }
@@ -85,7 +107,7 @@ my ($_stdin, $_help, $_edit,
 	$_message, $_file, $_branch_dest,
 	$_template, $_shared,
 	$_version, $_fetch_all, $_no_rebase, $_fetch_parent,
-	$_merge, $_strategy, $_dry_run, $_local,
+	$_merge, $_strategy, $_preserve_merges, $_dry_run, $_local,
 	$_prefix, $_no_checkout, $_url, $_verbose,
 	$_git_format, $_commit_url, $_tag, $_merge_info, $_interactive);
 $Git::SVN::_follow_parent = 1;
@@ -234,6 +256,7 @@ my %cmd = (
 			  'local|l' => \$_local,
 			  'fetch-all|all' => \$_fetch_all,
 			  'dry-run|n' => \$_dry_run,
+			  'preserve-merges|p' => \$_preserve_merges,
 			  %fc_opts } ],
 	'commit-diff' => [ \&cmd_commit_diff,
 	                   'Commit a diff between two trees',
@@ -1470,7 +1493,7 @@ sub cmd_info {
 	}
 	::_req_svn();
 	$result .= "Repository UUID: $uuid\n" unless $diff_status eq "A" &&
-		($SVN::Core::VERSION le '1.5.4' || $file_type ne "dir");
+		(::compare_svn_version('1.5.4') <= 0 || $file_type ne "dir");
 	$result .= "Revision: " . ($diff_status eq "A" ? 0 : $rev) . "\n";
 
 	$result .= "Node Kind: " .
@@ -1571,6 +1594,7 @@ sub rebase_cmd {
 	push @cmd, '-v' if $_verbose;
 	push @cmd, qw/--merge/ if $_merge;
 	push @cmd, "--strategy=$_strategy" if $_strategy;
+	push @cmd, "--preserve-merges" if $_preserve_merges;
 	@cmd;
 }
 
@@ -2032,6 +2056,7 @@ use IPC::Open3;
 use Time::Local;
 use Memoize;  # core since 5.8.0, Jul 2002
 use Memoize::Storable;
+use POSIX qw(:signal_h);
 
 my ($_gc_nr, $_gc_period);
 
@@ -4060,11 +4085,14 @@ sub rev_map_set {
 	length $commit == 40 or die "arg3 must be a full SHA1 hexsum\n";
 	my $db = $self->map_path($uuid);
 	my $db_lock = "$db.lock";
-	my $sig;
+	my $sigmask;
 	$update_ref ||= 0;
 	if ($update_ref) {
-		$SIG{INT} = $SIG{HUP} = $SIG{TERM} = $SIG{ALRM} = $SIG{PIPE} =
-		            $SIG{USR1} = $SIG{USR2} = sub { $sig = $_[0] };
+		$sigmask = POSIX::SigSet->new();
+		my $signew = POSIX::SigSet->new(SIGINT, SIGHUP, SIGTERM,
+			SIGALRM, SIGUSR1, SIGUSR2);
+		sigprocmask(SIG_BLOCK, $signew, $sigmask) or
+			croak "Can't block signals: $!";
 	}
 	mkfile($db);
 
@@ -4103,9 +4131,8 @@ sub rev_map_set {
 	                            "$db_lock => $db ($!)\n";
 	delete $LOCKFILES{$db_lock};
 	if ($update_ref) {
-		$SIG{INT} = $SIG{HUP} = $SIG{TERM} = $SIG{ALRM} = $SIG{PIPE} =
-		            $SIG{USR1} = $SIG{USR2} = 'DEFAULT';
-		kill $sig, $$ if defined $sig;
+		sigprocmask(SIG_SETMASK, $sigmask) or
+			croak "Can't restore signal mask: $!";
 	}
 }
 
@@ -5437,7 +5464,7 @@ BEGIN {
 }
 
 sub _auth_providers () {
-	[
+	my @rv = (
 	  SVN::Client::get_simple_provider(),
 	  SVN::Client::get_ssl_server_trust_file_provider(),
 	  SVN::Client::get_simple_prompt_provider(
@@ -5453,7 +5480,23 @@ sub _auth_providers () {
 	    \&Git::SVN::Prompt::ssl_server_trust),
 	  SVN::Client::get_username_prompt_provider(
 	    \&Git::SVN::Prompt::username, 2)
-	]
+	);
+
+	# earlier 1.6.x versions would segfault, and <= 1.5.x didn't have
+	# this function
+	if (::compare_svn_version('1.6.12') > 0) {
+		my $config = SVN::Core::config_get_config($config_dir);
+		my ($p, @a);
+		# config_get_config returns all config files from
+		# ~/.subversion, auth_get_platform_specific_client_providers
+		# just wants the config "file".
+		@a = ($config->{'config'}, undef);
+		$p = SVN::Core::auth_get_platform_specific_client_providers(@a);
+		# Insert the return value from
+		# auth_get_platform_specific_providers
+		unshift @rv, @$p;
+	}
+	\@rv;
 }
 
 sub escape_uri_only {
@@ -5600,7 +5643,7 @@ sub get_log {
 	# drop it.  Therefore, the receiver callback passed to it
 	# is made aware of this limitation by being wrapped if
 	# the limit passed to is being wrapped.
-	if ($SVN::Core::VERSION le '1.2.0') {
+	if (::compare_svn_version('1.2.0') <= 0) {
 		my $limit = splice(@args, 3, 1);
 		if ($limit > 0) {
 			my $receiver = pop @args;
@@ -5632,7 +5675,8 @@ sub trees_match {
 
 sub get_commit_editor {
 	my ($self, $log, $cb, $pool) = @_;
-	my @lock = $SVN::Core::VERSION ge '1.2.0' ? (undef, 0) : ();
+
+	my @lock = (::compare_svn_version('1.2.0') >= 0) ? (undef, 0) : ();
 	$self->SUPER::get_commit_editor($log, $cb, @lock, $pool);
 }
 
@@ -5650,7 +5694,7 @@ sub gs_do_update {
 	my (@pc) = split m#/#, $path;
 	my $reporter = $self->do_update($rev_b, (@pc ? shift @pc : ''),
 	                                1, $editor, $pool);
-	my @lock = $SVN::Core::VERSION ge '1.2.0' ? (undef) : ();
+	my @lock = (::compare_svn_version('1.2.0') >= 0) ? (undef) : ();
 
 	# Since we can't rely on svn_ra_reparent being available, we'll
 	# just have to do some magic with set_path to make it so
@@ -5700,7 +5744,7 @@ sub gs_do_switch {
 	$ra ||= $self;
 	$url_b = escape_url($url_b);
 	my $reporter = $ra->do_switch($rev_b, '', 1, $url_b, $editor, $pool);
-	my @lock = $SVN::Core::VERSION ge '1.2.0' ? (undef) : ();
+	my @lock = (::compare_svn_version('1.2.0') >= 0) ? (undef) : ();
 	$reporter->set_path('', $rev_a, 0, @lock, $pool);
 	$reporter->finish_report($pool);
 
