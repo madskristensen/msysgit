@@ -41,6 +41,7 @@
 	dt = difftool
 	mt = mergetool
 	rbc = rebase --continue
+	rim = rebase -i master
 
 [diff]
 	tool = vs11
