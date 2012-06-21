@@ -40,6 +40,7 @@
 [alias]
 	dt = difftool
 	mt = mergetool
+	rbc = rebase --continue
 
 [diff]
 	tool = vs11
