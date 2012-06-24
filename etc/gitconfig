@@ -26,6 +26,9 @@
 [diff "astextplain"]
 	textconv = astextplain
 
+[rerere]
+	enabled = 1
+
 [rebase]
 	autosquash = true
 
