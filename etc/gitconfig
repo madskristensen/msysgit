@@ -69,3 +69,7 @@
 [mergetool "p4"]
 	cmd = \"c:/program files/Perforce/p4merge.exe\" \"$BASE\" \"$LOCAL\" \"$REMOTE\" \"$MERGED\"
 	trustExitCode = false
+
+[url "https://github.com/"]
+	insteadOf = "ghh://"
+	pushInsteadOf = "ghh://"
