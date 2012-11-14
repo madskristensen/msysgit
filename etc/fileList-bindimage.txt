@@ -1,3 +1,10 @@
+bin/GitTfs.Vs11.dll
+bin/GitTfs.Vs2008.dll
+bin/GitTfs.Vs2010.dll
+bin/GitTfs.VsFake.dll
+bin/LibGit2Sharp.dll
+bin/NDesk.Options.dll
+bin/StructureMap.dll
 bin/antiword.exe
 bin/basename.exe
 bin/bash.exe
@@ -23,9 +30,11 @@ bin/flex.exe
 bin/gawk.exe
 bin/getcp.exe
 bin/git-receive-pack.exe
+bin/git-tfs.exe
 bin/git-upload-archive.exe
 bin/git-upload-pack.exe
 bin/git.exe
+bin/git2.dll
 bin/gpg.exe
 bin/gpgsplit.exe
 bin/gpgv.exe
