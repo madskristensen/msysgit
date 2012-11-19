@@ -633,7 +633,7 @@ by using the -a switch with the <em>commit</em> command to automatically
 by using the --interactive or --patch switches with the <em>commit</em> command
    to decide one by one which files or hunks should be part of the commit,
    before finalizing the operation. See the &#8220;Interactive Mode&#8221; section of
-    to learn how to operate these modes.
+   <a href="git-add.html">git-add(1)</a> to learn how to operate these modes.
 </p>
 </li>
 </ol></div>
@@ -668,7 +668,7 @@ that, you can recover from it with <em>git reset</em>.</p></div>
 <dd>
 <p>
         Use the interactive patch selection interface to chose
-        which changes to commit. See  for
+        which changes to commit. See <a href="git-add.html">git-add(1)</a> for
         details.
 </p>
 </dd>
@@ -704,7 +704,7 @@ that, you can recover from it with <em>git reset</em>.</p></div>
 <p>
         Construct a commit message for use with <tt>rebase --autosquash</tt>.
         The commit message will be the subject line from the specified
-        commit with a prefix of "fixup! ".  See 
+        commit with a prefix of "fixup! ".  See <a href="git-rebase.html">git-rebase(1)</a>
         for details.
 </p>
 </dd>
@@ -717,7 +717,7 @@ that, you can recover from it with <em>git reset</em>.</p></div>
         The commit message subject line is taken from the specified
         commit with a prefix of "squash! ".  Can be used with additional
         commit message options (<tt>-m</tt>/<tt>-c</tt>/<tt>-C</tt>/<tt>-F</tt>). See
-         for details.
+        <a href="git-rebase.html">git-rebase(1)</a> for details.
 </p>
 </dd>
 <dt class="hdlist1">
@@ -737,7 +737,15 @@ that, you can recover from it with <em>git reset</em>.</p></div>
 <dd>
 <p>
         When doing a dry-run, give the output in the short-format. See
-         for details. Implies <tt>--dry-run</tt>.
+        <a href="git-status.html">git-status(1)</a> for details. Implies <tt>--dry-run</tt>.
+</p>
+</dd>
+<dt class="hdlist1">
+--branch
+</dt>
+<dd>
+<p>
+        Show the branch and tracking info even in short-format.
 </p>
 </dd>
 <dt class="hdlist1">
@@ -746,12 +754,15 @@ that, you can recover from it with <em>git reset</em>.</p></div>
 <dd>
 <p>
         When doing a dry-run, give the output in a porcelain-ready
-        format. See  for details. Implies
+        format. See <a href="git-status.html">git-status(1)</a> for details. Implies
         <tt>--dry-run</tt>.
 </p>
 </dd>
 <dt class="hdlist1">
 -z
+</dt>
+<dt class="hdlist1">
+--null
 </dt>
 <dd>
 <p>
@@ -842,7 +853,7 @@ that, you can recover from it with <em>git reset</em>.</p></div>
 <dd>
 <p>
         This option bypasses the pre-commit and commit-msg hooks.
-        See also .
+        See also <a href="githooks.html">githooks(5)</a>.
 </p>
 </dd>
 <dt class="hdlist1">
@@ -864,7 +875,7 @@ that, you can recover from it with <em>git reset</em>.</p></div>
        Like --allow-empty this command is primarily for use by foreign
        SCM interface scripts. It allows you to create a commit with an
        empty commit message without using plumbing commands like
-       .
+       <a href="git-commit-tree.html">git-commit-tree(1)</a>.
 </p>
 </dd>
 <dt class="hdlist1">
@@ -910,6 +921,17 @@ that, you can recover from it with <em>git reset</em>.</p></div>
         the current tip as parents&#8201;&#8212;&#8201;so the current top commit is
         discarded.
 </p>
+</dd>
+<dt class="hdlist1">
+--no-post-rewrite
+</dt>
+<dd>
+<p>
+        Bypass the post-rewrite hook.
+</p>
+</dd>
+</dl></div>
+<div class="paragraph"><p>+</p></div>
 <div class="paragraph"><p>It is a rough equivalent for:</p></div>
 <div class="listingblock">
 <div class="content">
@@ -918,10 +940,11 @@ that, you can recover from it with <em>git reset</em>.</p></div>
         $ git commit -c ORIG_HEAD</tt></pre>
 </div></div>
 <div class="paragraph"><p>but can be used to amend a merge commit.</p></div>
-<div class="paragraph"><p>You should understand the implications of rewriting history if you
+<div class="paragraph"><p>+
+You should understand the implications of rewriting history if you
 amend a commit that has already been published.  (See the "RECOVERING
-FROM UPSTREAM REBASE" section in .)</p></div>
-</dd>
+FROM UPSTREAM REBASE" section in <a href="git-rebase.html">git-rebase(1)</a>.)</p></div>
+<div class="dlist"><dl>
 <dt class="hdlist1">
 -i
 </dt>
@@ -985,7 +1008,7 @@ default is <em>normal</em>, i.e. show untracked files and directories.</p></div>
 <em>all</em>    - Also shows individual files in untracked directories.
 </p>
 <div class="paragraph"><p>The default can be changed using the status.showUntrackedFiles
-configuration variable documented in .</p></div>
+configuration variable documented in <a href="git-config.html">git-config(1)</a>.</p></div>
 </li>
 </ul></div>
 </dd>
@@ -1029,7 +1052,7 @@ configuration variable documented in .</p></div>
 </dt>
 <dd>
 <p>
-        Include the output of  in the commit
+        Include the output of <a href="git-status.html">git-status(1)</a> in the commit
         message template when using an editor to prepare the commit
         message.  Defaults to on, but can be used to override
         configuration variable commit.status.
@@ -1040,7 +1063,7 @@ configuration variable documented in .</p></div>
 </dt>
 <dd>
 <p>
-        Do not include the output of  in the
+        Do not include the output of <a href="git-status.html">git-status(1)</a> in the
         commit message template when using an editor to prepare the
         default commit message.
 </p>
@@ -1203,8 +1226,10 @@ refuses to run when given pathnames (but see <tt>-i</tt> option).</p></div>
 <div class="paragraph"><p>Though not required, it&#8217;s a good idea to begin the commit message
 with a single short (less than 50 character) line summarizing the
 change, followed by a blank line and then a more thorough description.
-Tools that turn commits into email, for example, use the first line
-on the Subject: line and the rest of the commit in the body.</p></div>
+The text up to the first blank line in a commit message is treated
+as the commit title, and that title is used throughout git.
+For example, <a href="git-format-patch.html">git-format-patch(1)</a> turns a commit into email, and it uses
+the title on the Subject line and the rest of the commit in the body.</p></div>
 <div class="paragraph"><p>At the core level, git is character encoding agnostic.</p></div>
 <div class="ulist"><ul>
 <li>
@@ -1283,30 +1308,48 @@ reversible operation.</p></div>
 <div class="paragraph"><p>The editor used to edit the commit log message will be chosen from the
 GIT_EDITOR environment variable, the core.editor configuration variable, the
 VISUAL environment variable, or the EDITOR environment variable (in that
-order).  See  for details.</p></div>
+order).  See <a href="git-var.html">git-var(1)</a> for details.</p></div>
 </div>
 <h2 id="_hooks">HOOKS</h2>
 <div class="sectionbody">
 <div class="paragraph"><p>This command can run <tt>commit-msg</tt>, <tt>prepare-commit-msg</tt>, <tt>pre-commit</tt>,
-and <tt>post-commit</tt> hooks.  See  for more
+and <tt>post-commit</tt> hooks.  See <a href="githooks.html">githooks(5)</a> for more
 information.</p></div>
+</div>
+<h2 id="_files">FILES</h2>
+<div class="sectionbody">
+<div class="dlist"><dl>
+<dt class="hdlist1">
+<tt>$GIT_DIR/COMMIT_EDITMSG</tt>
+</dt>
+<dd>
+<p>
+        This file contains the commit message of a commit in progress.
+        If <tt>git commit</tt> exits due to an error before creating a commit,
+        any commit message that has been provided by the user (e.g., in
+        an editor session) will be available in this file, but will be
+        overwritten by the next invocation of <tt>git commit</tt>.
+</p>
+</dd>
+</dl></div>
 </div>
 <h2 id="_see_also">SEE ALSO</h2>
 <div class="sectionbody">
-<div class="paragraph"><p>,
-,
-,
-,</p></div>
+<div class="paragraph"><p><a href="git-add.html">git-add(1)</a>,
+<a href="git-rm.html">git-rm(1)</a>,
+<a href="git-mv.html">git-mv(1)</a>,
+<a href="git-merge.html">git-merge(1)</a>,
+<a href="git-commit-tree.html">git-commit-tree(1)</a></p></div>
 </div>
 <h2 id="_git">GIT</h2>
 <div class="sectionbody">
-<div class="paragraph"><p>Part of the  suite</p></div>
+<div class="paragraph"><p>Part of the <a href="git.html">git(1)</a> suite</p></div>
 </div>
 </div>
 <div id="footnotes"><hr /></div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2012-05-02 15:00:44 PDT
+Last updated 2012-09-17 16:55:59 PDT
 </div>
 </div>
 </body>

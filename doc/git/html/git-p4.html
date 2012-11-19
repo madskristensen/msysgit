@@ -749,11 +749,11 @@ privileges in p4, which can be granted using <em>p4 protect</em>.</p></div>
 </dt>
 <dd>
 <p>
-        Set the <em>GIT_DIR</em> environment variable.  See .
+        Set the <em>GIT_DIR</em> environment variable.  See <a href="git.html">git(1)</a>.
 </p>
 </dd>
 <dt class="hdlist1">
---verbose
+--verbose, -v
 </dt>
 <dd>
 <p>
@@ -835,7 +835,7 @@ git repository:</p></div>
 <p>
         By default, p4 branches are stored in <em>refs/remotes/p4/</em>,
         where they will be treated as remote-tracking branches by
-         and other commands.  This option instead
+        <a href="git-branch.html">git-branch(1)</a> and other commands.  This option instead
         puts p4 branches in <em>refs/heads/p4/</em>.  Note that future
         sync operations must specify <em>--import-local</em> as well so that
         they can find the p4 branches in refs/heads.
@@ -893,7 +893,7 @@ options described above.</p></div>
 </dt>
 <dd>
 <p>
-        Perform a bare clone.  See .
+        Perform a bare clone.  See <a href="git-clone.html">git-clone(1)</a>.
 </p>
 </dd>
 <dt class="hdlist1">
@@ -919,11 +919,11 @@ options described above.</p></div>
 </p>
 </dd>
 <dt class="hdlist1">
--M[&lt;n&gt;]
+-M
 </dt>
 <dd>
 <p>
-        Detect renames.  See .  Renames will be
+        Detect renames.  See <a href="git-diff.html">git-diff(1)</a>.  Renames will be
         represented in p4 using explicit <em>move</em> operations.  There
         is no corresponding option to detect copies, but there are
         variables for both moves and copies.
@@ -945,6 +945,39 @@ options described above.</p></div>
 <p>
         Export tags from git as p4 labels. Tags found in git are applied
         to the perforce working directory.
+</p>
+</dd>
+<dt class="hdlist1">
+--dry-run, -n
+</dt>
+<dd>
+<p>
+        Show just what commits would be submitted to p4; do not change
+        state in git or p4.
+</p>
+</dd>
+<dt class="hdlist1">
+--prepare-p4-only
+</dt>
+<dd>
+<p>
+        Apply a commit to the p4 workspace, opening, adding and deleting
+        files in p4 as for a normal submit operation.  Do not issue the
+        final "p4 submit", but instead print a message about how to
+        submit manually or revert.  This option always stops after the
+        first (oldest) commit.  Git tags are not exported to p4.
+</p>
+</dd>
+<dt class="hdlist1">
+--conflict=(ask|skip|quit)
+</dt>
+<dd>
+<p>
+        Conflicts can occur when applying a commit to p4.  When this
+        happens, the default behavior ("ask") is to prompt whether to
+        skip this commit and continue, or quit.  This option can be used
+        to bypass the prompt, causing conflicting commits to be automatically
+        skipped, or to quit trying to apply commits, without prompting.
 </p>
 </dd>
 </dl></div>
@@ -1084,7 +1117,7 @@ git p4 clone --detect-branches //depot@all</tt></pre>
 <div class="sectionbody">
 <div class="paragraph"><p>The fast-import mechanism used by <em>git p4</em> creates one pack file for
 each invocation of <em>git p4 sync</em>.  Normally, git garbage compression
-() automatically compresses these to fewer pack files,
+(<a href="git-gc.html">git-gc(1)</a>) automatically compresses these to fewer pack files,
 but explicit invocation of <em>git repack -adf</em> may improve performance.</p></div>
 </div>
 <h2 id="_configuration_variables">CONFIGURATION VARIABLES</h2>
@@ -1228,7 +1261,8 @@ git-p4.detectRenames
 </dt>
 <dd>
 <p>
-        Detect renames.  See .
+        Detect renames.  See <a href="git-diff.html">git-diff(1)</a>.  This can be true,
+        false, or a score as expected by <em>git diff -M</em>.
 </p>
 </dd>
 <dt class="hdlist1">
@@ -1236,7 +1270,8 @@ git-p4.detectCopies
 </dt>
 <dd>
 <p>
-        Detect copies.  See .
+        Detect copies.  See <a href="git-diff.html">git-diff(1)</a>.  This can be true,
+        false, or a score as expected by <em>git diff -C</em>.
 </p>
 </dd>
 <dt class="hdlist1">
@@ -1244,7 +1279,7 @@ git-p4.detectCopiesHarder
 </dt>
 <dd>
 <p>
-        Detect copies harder.  See .
+        Detect copies harder.  See <a href="git-diff.html">git-diff(1)</a>.  A boolean.
 </p>
 </dd>
 <dt class="hdlist1">
@@ -1336,6 +1371,15 @@ git-p4.labelExportRegexp
         default value is <em>[a-zA-Z0-9_\-.]+$</em>.
 </p>
 </dd>
+<dt class="hdlist1">
+git-p4.conflict
+</dt>
+<dd>
+<p>
+        Specify submit behavior when a conflict with p4 is found, as per
+        --conflict.  The default behavior is <em>ask</em>.
+</p>
+</dd>
 </dl></div>
 </div>
 <h2 id="_implementation_details">IMPLEMENTATION DETAILS</h2>
@@ -1373,7 +1417,7 @@ Each commit imported by <em>git p4</em> has a line at the end of the log
 <div id="footnotes"><hr /></div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2012-05-10 11:44:38 PDT
+Last updated 2012-09-18 15:30:10 PDT
 </div>
 </div>
 </body>

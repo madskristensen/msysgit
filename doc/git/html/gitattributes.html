@@ -644,7 +644,7 @@ Unspecified
 <div class="paragraph"><p>When more than one pattern matches the path, a later line
 overrides an earlier line.  This overriding is done per
 attribute.  The rules how the pattern matches paths are the
-same as in <tt>.gitignore</tt> files; see .</p></div>
+same as in <tt>.gitignore</tt> files; see <a href="gitignore.html">gitignore(5)</a>.</p></div>
 <div class="paragraph"><p>When deciding what attributes are assigned to a path, git
 consults <tt>$GIT_DIR/info/attributes</tt> file (which has the highest
 precedence), <tt>.gitattributes</tt> file in the same directory as the
@@ -653,6 +653,10 @@ work tree (the further the directory that contains <tt>.gitattributes</tt>
 is from the path in question, the lower its precedence). Finally
 global and system-wide files are considered (they have the lowest
 precedence).</p></div>
+<div class="paragraph"><p>When the <tt>.gitattributes</tt> file is missing from the work tree, the
+path in the index is used as a fall-back.  During checkout process,
+<tt>.gitattributes</tt> in the index is used and then the file in the
+working tree is used as a fall-back.</p></div>
 <div class="paragraph"><p>If you wish to affect only a single repository (i.e., to assign
 attributes to files that are particular to
 one user&#8217;s workflow for that repository), then
@@ -661,7 +665,9 @@ Attributes which should be version-controlled and distributed to other
 repositories (i.e., attributes of interest to all users) should go into
 <tt>.gitattributes</tt> files. Attributes that should affect all repositories
 for a single user should be placed in a file specified by the
-<tt>core.attributesfile</tt> configuration option (see ).
+<tt>core.attributesfile</tt> configuration option (see <a href="git-config.html">git-config(1)</a>).
+Its default value is $XDG_CONFIG_HOME/git/attributes. If $XDG_CONFIG_HOME
+is either not set or empty, $HOME/.config/git/attributes is used instead.
 Attributes for all users on a system should be placed in the
 <tt>$(prefix)/etc/gitattributes</tt> file.</p></div>
 <div class="paragraph"><p>Sometimes you would need to override an setting of an attribute
@@ -1043,7 +1049,7 @@ wrong place to talk about it.  However&#8230;</p></div>
 attribute set to <tt>jcdiff</tt>, it calls the command you specified
 with the above configuration, i.e. <tt>j-c-diff</tt>, with 7
 parameters, just like <tt>GIT_EXTERNAL_DIFF</tt> program is called.
-See  for details.</p></div>
+See <a href="git.html">git(1)</a> for details.</p></div>
 <h4 id="_defining_a_custom_hunk_header">Defining a custom hunk-header</h4>
 <div class="paragraph"><p>Each group of changes (called a "hunk") in the textual diff output
 is prefixed with a line of the form:</p></div>
@@ -1082,6 +1088,11 @@ configuration file (you still need to enable this with the
 attribute mechanism, via <tt>.gitattributes</tt>).  The following built in
 patterns are available:</p></div>
 <div class="ulist"><ul>
+<li>
+<p>
+<tt>ada</tt> suitable for source code in the Ada language.
+</p>
+</li>
 <li>
 <p>
 <tt>bibtex</tt> suitable for files with BibTeX coded references.
@@ -1428,7 +1439,7 @@ results in a conflict.</p></div>
 <h4 id="_tt_whitespace_tt"><tt>whitespace</tt></h4>
 <div class="paragraph"><p>The <tt>core.whitespace</tt> configuration variable allows you to define what
 <em>diff</em> and <em>apply</em> should consider whitespace errors for all paths in
-the project (See ).  This attribute gives you finer
+the project (See <a href="git-config.html">git-config(1)</a>).  This attribute gives you finer
 control per path.</p></div>
 <div class="dlist"><dl>
 <dt class="hdlist1">
@@ -1477,9 +1488,9 @@ archive files.</p></div>
 <div class="paragraph"><p>If the attribute <tt>export-subst</tt> is set for a file then git will expand
 several placeholders when adding this file to an archive.  The
 expansion depends on the availability of a commit ID, i.e., if
- has been given a tree instead of a commit or a
+<a href="git-archive.html">git-archive(1)</a> has been given a tree instead of a commit or a
 tag then no replacement will be done.  The placeholders are the same
-as those for the option <tt>--pretty=format:</tt> of ,
+as those for the option <tt>--pretty=format:</tt> of <a href="git-log.html">git-log(1)</a>,
 except that they need to be wrapped like this: <tt>$Format:PLACEHOLDERS$</tt>
 in the file.  E.g. the string <tt>$Format:%H$</tt> will be replaced by the
 commit hash.</p></div>
@@ -1490,13 +1501,13 @@ attribute <tt>delta</tt> set to false.</p></div>
 <h3 id="_viewing_files_in_gui_tools">Viewing files in GUI tools</h3><div style="clear:left"></div>
 <h4 id="_tt_encoding_tt"><tt>encoding</tt></h4>
 <div class="paragraph"><p>The value of this attribute specifies the character encoding that should
-be used by GUI tools (e.g.  and ) to
+be used by GUI tools (e.g. <a href="gitk.html">gitk(1)</a> and <a href="git-gui.html">git-gui(1)</a>) to
 display the contents of the relevant file. Note that due to performance
-considerations  does not use this attribute unless you
+considerations <a href="gitk.html">gitk(1)</a> does not use this attribute unless you
 manually enable per-file encodings in its options.</p></div>
 <div class="paragraph"><p>If this attribute is not set or has an invalid value, the value of the
 <tt>gui.encoding</tt> configuration variable is used instead
-(See ).</p></div>
+(See <a href="git-config.html">git-config(1)</a>).</p></div>
 </div>
 <h2 id="_using_macro_attributes">USING MACRO ATTRIBUTES</h2>
 <div class="sectionbody">
@@ -1527,7 +1538,7 @@ file at the toplevel (i.e. not in any subdirectory).  The built-in
 macro attribute "binary" is equivalent to:</p></div>
 <div class="listingblock">
 <div class="content">
-<pre><tt>[attr]binary -diff -text</tt></pre>
+<pre><tt>[attr]binary -diff -merge -text</tt></pre>
 </div></div>
 </div>
 <h2 id="_example">EXAMPLE</h2>
@@ -1588,17 +1599,17 @@ frotz   unspecified</tt></pre>
 </div>
 <h2 id="_see_also">SEE ALSO</h2>
 <div class="sectionbody">
-<div class="paragraph"><p>.</p></div>
+<div class="paragraph"><p><a href="git-check-attr.html">git-check-attr(1)</a>.</p></div>
 </div>
 <h2 id="_git">GIT</h2>
 <div class="sectionbody">
-<div class="paragraph"><p>Part of the  suite</p></div>
+<div class="paragraph"><p>Part of the <a href="git.html">git(1)</a> suite</p></div>
 </div>
 </div>
 <div id="footnotes"><hr /></div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2012-02-28 15:40:09 PDT
+Last updated 2012-10-10 15:49:24 PDT
 </div>
 </div>
 </body>

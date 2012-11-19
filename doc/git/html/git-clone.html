@@ -603,7 +603,8 @@ currently active branch.</p></div>
 <div class="paragraph"><p>After the clone, a plain <tt>git fetch</tt> without arguments will update
 all the remote-tracking branches, and a <tt>git pull</tt> without
 arguments will in addition merge the remote master branch into the
-current master branch, if any.</p></div>
+current master branch, if any (this is untrue when "--single-branch"
+is given; see below).</p></div>
 <div class="paragraph"><p>This default configuration is achieved by creating references to
 the remote branch heads under <tt>refs/remotes/origin</tt> and
 by initializing <tt>remote.origin.url</tt> and <tt>remote.origin.fetch</tt>
@@ -625,14 +626,17 @@ configuration variables.</p></div>
         mechanism and clones the repository by making a copy of
         HEAD and everything under objects and refs directories.
         The files under <tt>.git/objects/</tt> directory are hardlinked
-        to save space when possible.  This is now the default when
-        the source repository is specified with <tt>/path/to/repo</tt>
-        syntax, so it essentially is a no-op option.  To force
-        copying instead of hardlinking (which may be desirable
-        if you are trying to make a back-up of your repository),
-        but still avoid the usual "git aware" transport
-        mechanism, <tt>--no-hardlinks</tt> can be used.
+        to save space when possible.
 </p>
+<div class="paragraph"><p>If the repository is specified as a local path (e.g., <tt>/path/to/repo</tt>),
+this is the default, and --local is essentially a no-op.  If the
+repository is specified as a URL, then this flag is ignored (and we
+never use the local optimizations).  Specifying <tt>--no-local</tt> will
+override the default when <tt>/path/to/repo</tt> is given, using the regular
+git transport instead.</p></div>
+<div class="paragraph"><p>To force copying instead of hardlinking (which may be desirable if you
+are trying to make a back-up of your repository), but still avoid the
+usual "git aware" transport mechanism, <tt>--no-hardlinks</tt> can be used.</p></div>
 </dd>
 <dt class="hdlist1">
 --no-hardlinks
@@ -664,7 +668,7 @@ repository using this option and then delete branches (or use any
 other git command that makes any existing commit unreferenced) in the
 source repository, some objects may become unreferenced (or dangling).
 These objects may be removed by normal git operations (such as <tt>git commit</tt>)
-which automatically call <tt>git gc --auto</tt>. (See .)
+which automatically call <tt>git gc --auto</tt>. (See <a href="git-gc.html">git-gc(1)</a>.)
 If these objects are removed and were referenced by the cloned repository,
 then the cloned repository will become corrupt.</p></div>
 <div class="paragraph"><p>Note that running <tt>git repack</tt> without the <tt>-l</tt> option in a repository
@@ -789,9 +793,10 @@ objects from the source repository into a pack in the cloned repository.</p></di
 <p>
         Instead of pointing the newly created HEAD to the branch pointed
         to by the cloned repository&#8217;s HEAD, point to <tt>&lt;name&gt;</tt> branch
-        instead. <tt>--branch</tt> can also take tags and treat them like
-        detached HEAD. In a non-bare repository, this is the branch
-        that will be checked out.
+        instead. In a non-bare repository, this is the branch that will
+        be checked out.
+        <tt>--branch</tt> can also take tags and detaches the HEAD at that commit
+        in the resulting repository.
 </p>
 </dd>
 <dt class="hdlist1">
@@ -813,7 +818,7 @@ objects from the source repository into a pack in the cloned repository.</p></di
 <dd>
 <p>
         Specify the directory from which templates will be used;
-        (See the "TEMPLATE DIRECTORY" section of .)
+        (See the "TEMPLATE DIRECTORY" section of <a href="git-init.html">git-init(1)</a>.)
 </p>
 </dd>
 <dt class="hdlist1">
@@ -828,7 +833,7 @@ objects from the source repository into a pack in the cloned repository.</p></di
         this takes effect immediately after the repository is
         initialized, but before the remote history is fetched or any
         files checked out.  The key is in the same format as expected by
-         (e.g., <tt>core.eol=true</tt>). If multiple
+        <a href="git-config.html">git-config(1)</a> (e.g., <tt>core.eol=true</tt>). If multiple
         values are given for the same key, each value will be written to
         the config file. This makes it safe, for example, to add
         additional fetch refspecs to the origin remote.
@@ -859,6 +864,11 @@ objects from the source repository into a pack in the cloned repository.</p></di
         clone with the <tt>--depth</tt> option, this is the default, unless
         <tt>--no-single-branch</tt> is given to fetch the histories near the
         tips of all branches.
+        Further fetches into the resulting repository will only update the
+        remote tracking branch for the branch this option was used for the
+        initial cloning.  If the HEAD at the remote did not point at any
+        branch when <tt>--single-branch</tt> clone was made, no remote tracking
+        branch is created.
 </p>
 </dd>
 <dt class="hdlist1">
@@ -919,8 +929,11 @@ objects from the source repository into a pack in the cloned repository.</p></di
 address of the remote server, and the path to the repository.
 Depending on the transport protocol, some of this information may be
 absent.</p></div>
-<div class="paragraph"><p>Git natively supports ssh, git, http, https, ftp, ftps, and rsync
-protocols. The following syntaxes may be used with them:</p></div>
+<div class="paragraph"><p>Git supports ssh, git, http, and https protocols (in addition, ftp,
+and ftps can be used for fetching and rsync can be used for fetching
+and pushing, but these are inefficient and deprecated; do not use
+them).</p></div>
+<div class="paragraph"><p>The following syntaxes may be used with them:</p></div>
 <div class="ulist"><ul>
 <li>
 <p>
@@ -1003,7 +1016,7 @@ may be used:</p></div>
 </ul></div>
 <div class="paragraph"><p>where &lt;address&gt; may be a path, a server and path, or an arbitrary
 URL-like string recognized by the specific remote helper being
-invoked. See  for details.</p></div>
+invoked. See <a href="git-remote-helpers.html">git-remote-helpers(1)</a> for details.</p></div>
 <div class="paragraph"><p>If there are a large number of similarly-named remote repositories and
 you want to use a different format for them (such that the URLs you
 use will be rewritten into URLs that work), you can create a
@@ -1099,13 +1112,13 @@ Create a repository on the kernel.org machine that borrows from Linus:
 </div>
 <h2 id="_git">GIT</h2>
 <div class="sectionbody">
-<div class="paragraph"><p>Part of the  suite</p></div>
+<div class="paragraph"><p>Part of the <a href="git.html">git(1)</a> suite</p></div>
 </div>
 </div>
 <div id="footnotes"><hr /></div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2012-01-31 23:21:34 PDT
+Last updated 2012-10-01 13:59:22 PDT
 </div>
 </div>
 </body>

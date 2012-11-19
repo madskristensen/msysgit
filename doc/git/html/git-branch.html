@@ -588,6 +588,8 @@ git-branch(1) Manual Page
         [--column[=&lt;options&gt;] | --no-column]
         [(--merged | --no-merged | --contains) [&lt;commit&gt;]] [&lt;pattern&gt;&#8230;]
 <em>git branch</em> [--set-upstream | --track | --no-track] [-l] [-f] &lt;branchname&gt; [&lt;start-point&gt;]
+<em>git branch</em> (--set-upstream-to=&lt;upstream&gt; | -u &lt;upstream&gt;) [&lt;branchname&gt;]
+<em>git branch</em> --unset-upstream [&lt;branchname&gt;]
 <em>git branch</em> (-m | -M) [&lt;oldbranch&gt;] &lt;newbranch&gt;
 <em>git branch</em> (-d | -D) [-r] &lt;branchname&gt;&#8230;
 <em>git branch</em> --edit-description [&lt;branchname&gt;]</div>
@@ -620,7 +622,7 @@ branch so that <em>git pull</em> will appropriately merge from
 the remote-tracking branch. This behavior may be changed via the global
 <tt>branch.autosetupmerge</tt> configuration flag. That setting can be
 overridden by using the <tt>--track</tt> and <tt>--no-track</tt> options, and
-changed later using <tt>git branch --set-upstream</tt>.</p></div>
+changed later using <tt>git branch --set-upstream-to</tt>.</p></div>
 <div class="paragraph"><p>With a <tt>-m</tt> or <tt>-M</tt> option, &lt;oldbranch&gt; will be renamed to &lt;newbranch&gt;.
 If &lt;oldbranch&gt; had a corresponding reflog, it is renamed to match
 &lt;newbranch&gt;, and a reflog entry is created to remember the branch
@@ -632,7 +634,7 @@ has a reflog then the reflog will also be deleted.</p></div>
 <div class="paragraph"><p>Use <tt>-r</tt> together with <tt>-d</tt> to delete remote-tracking branches. Note, that it
 only makes sense to delete remote-tracking branches if they no longer exist
 in the remote repository or if <em>git fetch</em> was configured not to fetch
-them again. See also the <em>prune</em> subcommand of  for a
+them again. See also the <em>prune</em> subcommand of <a href="git-remote.html">git-remote(1)</a> for a
 way to clean up all obsolete remote-tracking branches.</p></div>
 </div>
 <h2 id="_options">OPTIONS</h2>
@@ -774,6 +776,9 @@ way to clean up all obsolete remote-tracking branches.</p></div>
 -v
 </dt>
 <dt class="hdlist1">
+-vv
+</dt>
+<dt class="hdlist1">
 --verbose
 </dt>
 <dd>
@@ -781,7 +786,8 @@ way to clean up all obsolete remote-tracking branches.</p></div>
         When in list mode,
         show sha1 and commit subject line for each head, along with
         relationship to upstream branch (if any). If given twice, print
-        the name of the upstream branch, as well.
+        the name of the upstream branch, as well (see also <tt>git remote
+        show &lt;remote&gt;</tt>).
 </p>
 </dd>
 <dt class="hdlist1">
@@ -856,6 +862,28 @@ start-point is either a local or remote-tracking branch.</p></div>
 </p>
 </dd>
 <dt class="hdlist1">
+-u &lt;upstream&gt;
+</dt>
+<dt class="hdlist1">
+--set-upstream-to=&lt;upstream&gt;
+</dt>
+<dd>
+<p>
+        Set up &lt;branchname&gt;'s tracking information so &lt;upstream&gt; is
+        considered &lt;branchname&gt;'s upstream branch. If no &lt;branchname&gt;
+        is specified, then it defaults to the current branch.
+</p>
+</dd>
+<dt class="hdlist1">
+--unset-upstream
+</dt>
+<dd>
+<p>
+        Remove the upstream information for &lt;branchname&gt;. If no branch
+        is specified it defaults to the current branch.
+</p>
+</dd>
+<dt class="hdlist1">
 --edit-description
 </dt>
 <dd>
@@ -898,7 +926,7 @@ start-point is either a local or remote-tracking branch.</p></div>
 <p>
         The name of the branch to create or delete.
         The new branch name must pass all checks defined by
-        .  Some of these checks
+        <a href="git-check-ref-format.html">git-check-ref-format(1)</a>.  Some of these checks
         may restrict the characters allowed in a branch name.
 </p>
 </dd>
@@ -970,7 +998,7 @@ $ git branch -D test                                    <b>&lt;2&gt;</b></tt></p
 <p>
 Delete the remote-tracking branches "todo", "html" and "man". The next
 <em>fetch</em> or <em>pull</em> will create them again unless you configure them not to.
-See .
+See <a href="git-fetch.html">git-fetch(1)</a>.
 </p>
 </li>
 <li>
@@ -1014,21 +1042,21 @@ but different purposes:</p></div>
 </div>
 <h2 id="_see_also">SEE ALSO</h2>
 <div class="sectionbody">
-<div class="paragraph"><p>,
-,
-,
+<div class="paragraph"><p><a href="git-check-ref-format.html">git-check-ref-format(1)</a>,
+<a href="git-fetch.html">git-fetch(1)</a>,
+<a href="git-remote.html">git-remote(1)</a>,
 <a href="user-manual.html#what-is-a-branch">&#8220;Understanding history: What is
 a branch?&#8221;</a> in the Git User&#8217;s Manual.</p></div>
 </div>
 <h2 id="_git">GIT</h2>
 <div class="sectionbody">
-<div class="paragraph"><p>Part of the  suite</p></div>
+<div class="paragraph"><p>Part of the <a href="git.html">git(1)</a> suite</p></div>
 </div>
 </div>
 <div id="footnotes"><hr /></div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2012-05-03 16:06:58 PDT
+Last updated 2012-09-25 12:07:50 PDT
 </div>
 </div>
 </body>

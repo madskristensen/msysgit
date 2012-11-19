@@ -594,6 +594,11 @@ git-blame(1) Manual Page
 <div class="paragraph"><p>Annotates each line in the given file with information from the revision which
 last modified the line. Optionally, start annotating from the given revision.</p></div>
 <div class="paragraph"><p>The command can also limit the range of lines annotated.</p></div>
+<div class="paragraph"><p>The origin of lines is automatically followed across whole-file
+renames (currently there is no option to turn the rename-following
+off). To follow lines moved from one file to another, or to follow
+lines that were copied and pasted from another file, etc., see the
+<tt>-C</tt> and <tt>-M</tt> options.</p></div>
 <div class="paragraph"><p>The report does not tell you anything about lines which have been deleted or
 replaced; you need to use a tool such as <em>git diff</em> or the "pickaxe"
 interface briefly mentioned in the following paragraph.</p></div>
@@ -692,7 +697,7 @@ of lines before or after the line given by &lt;start&gt;.</p></div>
 </dt>
 <dd>
 <p>
-        Use revisions from revs-file instead of calling .
+        Use revisions from revs-file instead of calling <a href="git-rev-list.html">git-rev-list(1)</a>.
 </p>
 </dd>
 <dt class="hdlist1">
@@ -745,7 +750,7 @@ of lines before or after the line given by &lt;start&gt;.</p></div>
         Specifies the encoding used to output author names
         and commit summaries. Setting it to <tt>none</tt> makes blame
         output unconverted data. For more information see the
-        discussion about encoding in the 
+        discussion about encoding in the <a href="git-log.html">git-log(1)</a>
         manual page.
 </p>
 </dd>
@@ -771,7 +776,7 @@ of lines before or after the line given by &lt;start&gt;.</p></div>
         provided, the value of the blame.date config variable is
         used. If the blame.date config variable is also not set, the
         iso format is used. For more information, See the discussion
-        of the --date option at .
+        of the --date option at <a href="git-log.html">git-log(1)</a>.
 </p>
 </dd>
 <dt class="hdlist1">
@@ -828,7 +833,7 @@ take effect.</p></div>
 </dt>
 <dd>
 <p>
-        Use the same output mode as  (Default: off).
+        Use the same output mode as <a href="git-annotate.html">git-annotate(1)</a> (Default: off).
 </p>
 </dd>
 <dt class="hdlist1">
@@ -1156,17 +1161,17 @@ the email address.</p></div>
 </div>
 <h2 id="_see_also">SEE ALSO</h2>
 <div class="sectionbody">
-<div class="paragraph"><p></p></div>
+<div class="paragraph"><p><a href="git-annotate.html">git-annotate(1)</a></p></div>
 </div>
 <h2 id="_git">GIT</h2>
 <div class="sectionbody">
-<div class="paragraph"><p>Part of the  suite</p></div>
+<div class="paragraph"><p>Part of the <a href="git.html">git(1)</a> suite</p></div>
 </div>
 </div>
 <div id="footnotes"><hr /></div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2012-05-02 15:00:44 PDT
+Last updated 2012-10-01 13:59:22 PDT
 </div>
 </div>
 </body>

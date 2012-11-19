@@ -149,6 +149,7 @@ libexec/git-core/git-commit.exe
 libexec/git-core/git-config.exe
 libexec/git-core/git-count-objects.exe
 libexec/git-core/git-credential-store.exe
+libexec/git-core/git-credential.exe
 libexec/git-core/git-daemon.exe
 libexec/git-core/git-describe.exe
 libexec/git-core/git-diff-files.exe

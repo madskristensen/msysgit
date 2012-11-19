@@ -2038,7 +2038,7 @@ proc makewindow {} {
     set file {
 	mc "File" cascade {
 	    {mc "Update" command updatecommits -accelerator F5}
-	    {mc "Reload" command reloadcommits -accelerator Meta1-F5}
+	    {mc "Reload" command reloadcommits -accelerator Shift-F5}
 	    {mc "Reread references" command rereadrefs}
 	    {mc "List references" command showrefs -accelerator F2}
 	    {xx "" separator}
@@ -2495,7 +2495,7 @@ proc makewindow {} {
     bindkey ? {dofind -1 1}
     bindkey f nextfile
     bind . <F5> updatecommits
-    bind . <$M1B-F5> reloadcommits
+    bind . <Shift-F5> reloadcommits
     bind . <F2> showrefs
     bind . <Shift-F4> {newview 0}
     catch { bind . <Shift-Key-XF86_Switch_VT_4> {newview 0} }
@@ -10616,7 +10616,7 @@ proc movedhead {hid head} {
 }
 
 proc changedrefs {} {
-    global cached_dheads cached_dtags cached_atags
+    global cached_dheads cached_dtags cached_atags cached_tagcontent
     global arctags archeads arcnos arcout idheads idtags
 
     foreach id [concat [array names idheads] [array names idtags]] {
@@ -10628,6 +10628,7 @@ proc changedrefs {} {
 	    }
 	}
     }
+    catch {unset cached_tagcontent}
     catch {unset cached_dtags}
     catch {unset cached_atags}
     catch {unset cached_dheads}
@@ -10680,7 +10681,7 @@ proc listrefs {id} {
 }
 
 proc showtag {tag isnew} {
-    global ctext tagcontents tagids linknum tagobjid
+    global ctext cached_tagcontent tagids linknum tagobjid
 
     if {$isnew} {
 	addtohistory [list showtag $tag 0] savectextpos
@@ -10689,13 +10690,13 @@ proc showtag {tag isnew} {
     clear_ctext
     settabs 0
     set linknum 0
-    if {![info exists tagcontents($tag)]} {
+    if {![info exists cached_tagcontent($tag)]} {
 	catch {
-           set tagcontents($tag) [exec git cat-file tag $tag]
+           set cached_tagcontent($tag) [exec git cat-file tag $tag]
 	}
     }
-    if {[info exists tagcontents($tag)]} {
-	set text $tagcontents($tag)
+    if {[info exists cached_tagcontent($tag)]} {
+	set text $cached_tagcontent($tag)
     } else {
 	set text "[mc "Tag"]: $tag\n[mc "Id"]:  $tagids($tag)"
     }
@@ -11549,6 +11550,11 @@ if {[catch {package require Tk 8.4} err]} {
     exit 1
 }
 
+# Unset GIT_TRACE var if set
+if { [info exists ::env(GIT_TRACE)] } {
+    unset ::env(GIT_TRACE)
+}
+
 # defaults...
 set wrcomcmd "git diff-tree --stdin -p --pretty"
 
@@ -11664,7 +11670,6 @@ if { [info exists ::env(GITK_MSGSDIR)] } {
     set gitk_prefix [file dirname [file dirname [file normalize $argv0]]]
     set gitk_libdir [file join $gitk_prefix share gitk lib]
     set gitk_msgsdir [file join $gitk_libdir msgs]
-    unset gitk_prefix
 }
 
 ## Internationalization (i18n) through msgcat and gettext. See
@@ -11821,28 +11826,32 @@ if {[expr {[exec git rev-parse --is-inside-work-tree] == "true"}]} {
 set worktree [exec git rev-parse --show-toplevel]
 setcoords
 makewindow
-catch {
-    image create photo gitlogo      -width 16 -height 16
+if {$::tcl_platform(platform) eq {windows} && [file exists $gitk_prefix/etc/git.ico]} {
+    wm iconbitmap . -default $gitk_prefix/etc/git.ico
+} else {
+    catch {
+        image create photo gitlogo      -width 16 -height 16
 
-    image create photo gitlogominus -width  4 -height  2
-    gitlogominus put #C00000 -to 0 0 4 2
-    gitlogo copy gitlogominus -to  1 5
-    gitlogo copy gitlogominus -to  6 5
-    gitlogo copy gitlogominus -to 11 5
-    image delete gitlogominus
+        image create photo gitlogominus -width  4 -height  2
+        gitlogominus put #C00000 -to 0 0 4 2
+        gitlogo copy gitlogominus -to  1 5
+        gitlogo copy gitlogominus -to  6 5
+        gitlogo copy gitlogominus -to 11 5
+        image delete gitlogominus
 
-    image create photo gitlogoplus  -width  4 -height  4
-    gitlogoplus  put #008000 -to 1 0 3 4
-    gitlogoplus  put #008000 -to 0 1 4 3
-    gitlogo copy gitlogoplus  -to  1 9
-    gitlogo copy gitlogoplus  -to  6 9
-    gitlogo copy gitlogoplus  -to 11 9
-    image delete gitlogoplus
+        image create photo gitlogoplus  -width  4 -height  4
+        gitlogoplus  put #008000 -to 1 0 3 4
+        gitlogoplus  put #008000 -to 0 1 4 3
+        gitlogo copy gitlogoplus  -to  1 9
+        gitlogo copy gitlogoplus  -to  6 9
+        gitlogo copy gitlogoplus  -to 11 9
+        image delete gitlogoplus
 
-    image create photo gitlogo32    -width 32 -height 32
-    gitlogo32 copy gitlogo -zoom 2 2
+        image create photo gitlogo32    -width 32 -height 32
+        gitlogo32 copy gitlogo -zoom 2 2
 
-    wm iconphoto . -default gitlogo gitlogo32
+        wm iconphoto . -default gitlogo gitlogo32
+    }
 }
 # wait for the window to become visible
 tkwait visibility .

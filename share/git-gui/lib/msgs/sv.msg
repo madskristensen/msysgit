@@ -477,7 +477,7 @@ set ::msgcat::header "Project-Id-Version: sv\nReport-Msgid-Bugs-To: \nPOT-Creati
 ::msgcat::mcset sv "Generating..." "Skapar..."
 ::msgcat::mcset sv "Could not start ssh-keygen:\n\n%s" "Kunde inte starta ssh-keygen:\n\n%s"
 ::msgcat::mcset sv "Generation failed." "Misslyckades med att skapa."
-::msgcat::mcset sv "Generation succeded, but no keys found." "Lyckades skapa nyckeln, men hittar inte n\u00e5gon nyckel."
+::msgcat::mcset sv "Generation succeeded, but no keys found." "Lyckades skapa nyckeln, men hittar inte n\u00e5gon nyckel."
 ::msgcat::mcset sv "Your key is in: %s" "Din nyckel finns i: %s"
 ::msgcat::mcset sv "%s ... %*i of %*i %s (%3i%%)" "%s... %*i av %*i %s (%3i%%)"
 ::msgcat::mcset sv "Add Tool" "L\u00e4gg till verktyg"

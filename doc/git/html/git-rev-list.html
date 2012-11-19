@@ -679,11 +679,19 @@ used by commands as different as <em>git bisect</em> and
 <h3 id="_commit_limiting">Commit Limiting</h3><div style="clear:left"></div>
 <div class="paragraph"><p>Besides specifying a range of commits that should be listed using the
 special notations explained in the description, additional commit
-limiting may be applied. Note that they are applied before commit
-ordering and formatting options, such as <em>--reverse</em>.</p></div>
+limiting may be applied.</p></div>
+<div class="paragraph"><p>Using more options generally further limits the output (e.g.
+<tt>--since=&lt;date1&gt;</tt> limits to commits newer than <tt>&lt;date1&gt;</tt>, and using it
+with <tt>--grep=&lt;pattern&gt;</tt> further limits to commits whose log message
+has a line that matches <tt>&lt;pattern&gt;</tt>), unless otherwise noted.</p></div>
+<div class="paragraph"><p>Note that these are applied before commit
+ordering and formatting options, such as <tt>--reverse</tt>.</p></div>
 <div class="dlist"><dl>
 <dt class="hdlist1">
--n <em>number</em>
+-&lt;number&gt;
+</dt>
+<dt class="hdlist1">
+-n &lt;number&gt;
 </dt>
 <dt class="hdlist1">
 --max-count=&lt;number&gt;
@@ -743,7 +751,22 @@ ordering and formatting options, such as <em>--reverse</em>.</p></div>
 <dd>
 <p>
         Limit the commits output to ones with author/committer
-        header lines that match the specified pattern (regular expression).
+        header lines that match the specified pattern (regular
+        expression).  With more than one <tt>--author=&lt;pattern&gt;</tt>,
+        commits whose author matches any of the given patterns are
+        chosen (similarly for multiple <tt>--committer=&lt;pattern&gt;</tt>).
+</p>
+</dd>
+<dt class="hdlist1">
+--grep-reflog=&lt;pattern&gt;
+</dt>
+<dd>
+<p>
+        Limit the commits output to ones with reflog entries that
+        match the specified pattern (regular expression). With
+        more than one <tt>--grep-reflog</tt>, commits whose reflog message
+        matches any of the given patterns are chosen.  It is an
+        error to use this option unless <tt>--walk-reflogs</tt> is in use.
 </p>
 </dd>
 <dt class="hdlist1">
@@ -752,8 +775,13 @@ ordering and formatting options, such as <em>--reverse</em>.</p></div>
 <dd>
 <p>
         Limit the commits output to ones with log message that
-        matches the specified pattern (regular expression).
+        matches the specified pattern (regular expression).  With
+        more than one <tt>--grep=&lt;pattern&gt;</tt>, commits whose message
+        matches any of the given patterns are chosen (but see
+        <tt>--all-match</tt>).
 </p>
+<div class="paragraph"><p>When <tt>--show-notes</tt> is in effect, the message from the notes as
+if it is part of the log message.</p></div>
 </dd>
 <dt class="hdlist1">
 --all-match
@@ -761,7 +789,7 @@ ordering and formatting options, such as <em>--reverse</em>.</p></div>
 <dd>
 <p>
         Limit the commits output to ones that match all given --grep,
-        --author and --committer instead of ones that match at least one.
+        instead of ones that match at least one.
 </p>
 </dd>
 <dt class="hdlist1">
@@ -1033,7 +1061,7 @@ used in the output.  When the starting commit is specified as
 instead.  Under <em>--pretty=oneline</em>, the commit message is
 prefixed with this information on the same line.
 This option cannot be combined with <em>--reverse</em>.
-See also .</p></div>
+See also <a href="git-reflog.html">git-reflog(1)</a>.</p></div>
 </dd>
 <dt class="hdlist1">
 --merge
@@ -1476,23 +1504,37 @@ after all the sorted commit objects, there will be the same text as if
 <div class="paragraph"><p>By default, the commits are shown in reverse chronological order.</p></div>
 <div class="dlist"><dl>
 <dt class="hdlist1">
---topo-order
-</dt>
-<dd>
-<p>
-        This option makes them appear in topological order (i.e.
-        descendant commits are shown before their parents).
-</p>
-</dd>
-<dt class="hdlist1">
 --date-order
 </dt>
 <dd>
 <p>
-        This option is similar to <em>--topo-order</em> in the sense that no
-        parent comes before all of its children, but otherwise things
-        are still ordered in the commit timestamp order.
+        Show no parents before all of its children are shown, but
+        otherwise show commits in the commit timestamp order.
 </p>
+</dd>
+<dt class="hdlist1">
+--topo-order
+</dt>
+<dd>
+<p>
+        Show no parents before all of its children are shown, and
+        avoid showing commits on multiple lines of history
+        intermixed.
+</p>
+<div class="paragraph"><p>For example, in a commit history like this:</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><tt>    ---1----2----4----7
+        \              \
+         3----5----6----8---</tt></pre>
+</div></div>
+<div class="paragraph"><p>where the numbers denote the order of commit timestamps, <tt>git
+rev-list</tt> and friends with <tt>--date-order</tt> show the commits in the
+timestamp order: 8 7 6 5 4 3 2 1.</p></div>
+<div class="paragraph"><p>With <tt>--topo-order</tt>, they would show 8 6 5 3 7 4 2 1 (or 8 7 4 2 6 5
+3 1); some older commits are shown before newer ones in order to
+avoid showing the commits from two parallel development track mixed
+together.</p></div>
 </dd>
 <dt class="hdlist1">
 --reverse
@@ -1525,7 +1567,7 @@ after all the sorted commit objects, there will be the same text as if
 <p>
         Similar to <em>--objects</em>, but also print the IDs of excluded
         commits prefixed with a "-" character.  This is used by
-         to build "thin" pack, which records
+        <a href="git-pack-objects.html">git-pack-objects(1)</a> to build "thin" pack, which records
         objects in deltified form based on objects contained in these
         excluded commits to reduce network traffic.
 </p>
@@ -1540,11 +1582,16 @@ after all the sorted commit objects, there will be the same text as if
 </p>
 </dd>
 <dt class="hdlist1">
---no-walk
+--no-walk[=(sorted|unsorted)]
 </dt>
 <dd>
 <p>
-        Only show the given revs, but do not traverse their ancestors.
+        Only show the given commits, but do not traverse their ancestors.
+        This has no effect if a range is specified. If the argument
+        "unsorted" is given, the commits are show in the order they were
+        given on the command line. Otherwise (if "sorted" or no argument
+        was given), the commits are show in reverse chronological order
+        by commit time.
 </p>
 </dd>
 <dt class="hdlist1">
@@ -1557,9 +1604,9 @@ after all the sorted commit objects, there will be the same text as if
 </dd>
 </dl></div>
 <h3 id="_commit_formatting">Commit Formatting</h3><div style="clear:left"></div>
-<div class="paragraph"><p>Using these options,  will act similar to the
-more specialized family of commit log tools: ,
-, and </p></div>
+<div class="paragraph"><p>Using these options, <a href="git-rev-list.html">git-rev-list(1)</a> will act similar to the
+more specialized family of commit log tools: <a href="git-log.html">git-log(1)</a>,
+<a href="git-show.html">git-show(1)</a>, and <a href="git-whatchanged.html">git-whatchanged(1)</a></p></div>
 <div class="dlist"><dl>
 <dt class="hdlist1">
 --pretty[=&lt;format&gt;]
@@ -1576,7 +1623,7 @@ more specialized family of commit log tools: ,
         format.  When omitted, the format defaults to <em>medium</em>.
 </p>
 <div class="paragraph"><p>Note: you can specify the default pretty format in the repository
-configuration (see ).</p></div>
+configuration (see <a href="git-config.html">git-config(1)</a>).</p></div>
 </dd>
 <dt class="hdlist1">
 --abbrev-commit
@@ -1627,7 +1674,7 @@ people using 80-column terminals.</p></div>
 </dt>
 <dd>
 <p>
-        Show the notes (see ) that annotate the
+        Show the notes (see <a href="git-notes.html">git-notes(1)</a>) that annotate the
         commit, when showing the commit log message.  This is the default
         for <tt>git log</tt>, <tt>git show</tt> and <tt>git whatchanged</tt> commands when
         there is no <tt>--pretty</tt>, <tt>--format</tt> nor <tt>--oneline</tt> option given
@@ -1635,7 +1682,7 @@ people using 80-column terminals.</p></div>
 </p>
 <div class="paragraph"><p>By default, the notes shown are from the notes refs listed in the
 <em>core.notesRef</em> and <em>notes.displayRef</em> variables (or corresponding
-environment overrides). See  for more details.</p></div>
+environment overrides). See <a href="git-config.html">git-config(1)</a> for more details.</p></div>
 <div class="paragraph"><p>With an optional <em>&lt;ref&gt;</em> argument, show this notes ref instead of the
 default notes ref(s). The ref is taken to be in <tt>refs/notes/</tt> if it
 is not qualified.</p></div>
@@ -1666,6 +1713,15 @@ being displayed. Examples: "--notes=foo" will show only notes from
 <p>
         These options are deprecated. Use the above --notes/--no-notes
         options instead.
+</p>
+</dd>
+<dt class="hdlist1">
+--show-signature
+</dt>
+<dd>
+<p>
+        Check the validity of a signed commit object by passing the signature
+        to <tt>gpg --verify</tt> and show the output.
 </p>
 </dd>
 <dt class="hdlist1">
@@ -1808,7 +1864,7 @@ file.</p></div>
 additional formats by setting a pretty.&lt;name&gt;
 config option to either another format name, or a
 <em>format:</em> string, as described below (see
-). Here are the details of the
+<a href="git-config.html">git-config(1)</a>). Here are the details of the
 built-in formats:</p></div>
 <div class="ulist"><ul>
 <li>
@@ -1975,7 +2031,7 @@ The title was &gt;&gt;t4119: test autocomputing -p&lt;n&gt; for traditional diff
 </li>
 <li>
 <p>
-<em>%aN</em>: author name (respecting .mailmap, see  or )
+<em>%aN</em>: author name (respecting .mailmap, see <a href="git-shortlog.html">git-shortlog(1)</a> or <a href="git-blame.html">git-blame(1)</a>)
 </p>
 </li>
 <li>
@@ -1985,7 +2041,7 @@ The title was &gt;&gt;t4119: test autocomputing -p&lt;n&gt; for traditional diff
 </li>
 <li>
 <p>
-<em>%aE</em>: author email (respecting .mailmap, see  or )
+<em>%aE</em>: author email (respecting .mailmap, see <a href="git-shortlog.html">git-shortlog(1)</a> or <a href="git-blame.html">git-blame(1)</a>)
 </p>
 </li>
 <li>
@@ -2020,7 +2076,7 @@ The title was &gt;&gt;t4119: test autocomputing -p&lt;n&gt; for traditional diff
 </li>
 <li>
 <p>
-<em>%cN</em>: committer name (respecting .mailmap, see  or )
+<em>%cN</em>: committer name (respecting .mailmap, see <a href="git-shortlog.html">git-shortlog(1)</a> or <a href="git-blame.html">git-blame(1)</a>)
 </p>
 </li>
 <li>
@@ -2030,7 +2086,7 @@ The title was &gt;&gt;t4119: test autocomputing -p&lt;n&gt; for traditional diff
 </li>
 <li>
 <p>
-<em>%cE</em>: committer email (respecting .mailmap, see  or )
+<em>%cE</em>: committer email (respecting .mailmap, see <a href="git-shortlog.html">git-shortlog(1)</a> or <a href="git-blame.html">git-blame(1)</a>)
 </p>
 </li>
 <li>
@@ -2060,7 +2116,7 @@ The title was &gt;&gt;t4119: test autocomputing -p&lt;n&gt; for traditional diff
 </li>
 <li>
 <p>
-<em>%d</em>: ref names, like the --decorate option of 
+<em>%d</em>: ref names, like the --decorate option of <a href="git-log.html">git-log(1)</a>
 </p>
 </li>
 <li>
@@ -2095,6 +2151,21 @@ The title was &gt;&gt;t4119: test autocomputing -p&lt;n&gt; for traditional diff
 </li>
 <li>
 <p>
+<em>%GG</em>: raw verification message from GPG for a signed commit
+</p>
+</li>
+<li>
+<p>
+<em>%G?</em>: show either "G" for Good or "B" for Bad for a signed commit
+</p>
+</li>
+<li>
+<p>
+<em>%GS</em>: show the name of the signer for a signed commit
+</p>
+</li>
+<li>
+<p>
 <em>%gD</em>: reflog selector, e.g., <tt>refs/stash@{1}</tt>
 </p>
 </li>
@@ -2110,7 +2181,7 @@ The title was &gt;&gt;t4119: test autocomputing -p&lt;n&gt; for traditional diff
 </li>
 <li>
 <p>
-<em>%gN</em>: reflog identity name (respecting .mailmap, see  or )
+<em>%gN</em>: reflog identity name (respecting .mailmap, see <a href="git-shortlog.html">git-shortlog(1)</a> or <a href="git-blame.html">git-blame(1)</a>)
 </p>
 </li>
 <li>
@@ -2120,7 +2191,7 @@ The title was &gt;&gt;t4119: test autocomputing -p&lt;n&gt; for traditional diff
 </li>
 <li>
 <p>
-<em>%gE</em>: reflog identity email (respecting .mailmap, see  or )
+<em>%gE</em>: reflog identity email (respecting .mailmap, see <a href="git-shortlog.html">git-shortlog(1)</a> or <a href="git-blame.html">git-blame(1)</a>)
 </p>
 </li>
 <li>
@@ -2176,7 +2247,7 @@ The title was &gt;&gt;t4119: test autocomputing -p&lt;n&gt; for traditional diff
 <li>
 <p>
 <em>%w([&lt;w&gt;[,&lt;i1&gt;[,&lt;i2&gt;]]])</em>: switch line wrapping, like the -w option of
-  .
+  <a href="git-shortlog.html">git-shortlog(1)</a>.
 </p>
 </li>
 </ul></div>
@@ -2240,7 +2311,7 @@ $ git log -2 --pretty=%h 4da45bef</tt></pre>
 </div>
 <h2 id="_git">GIT</h2>
 <div class="sectionbody">
-<div class="paragraph"><p>Part of the  suite</p></div>
+<div class="paragraph"><p>Part of the <a href="git.html">git(1)</a> suite</p></div>
 </div>
 </div>
 <div id="footnotes"><hr /></div>

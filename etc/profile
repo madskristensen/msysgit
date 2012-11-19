@@ -152,6 +152,7 @@ esac
 
 
 . /etc/git-completion.bash
+[ -r /etc/git-prompt.sh ] && . /etc/git-prompt.sh
 if test -z "$WINELOADERNOEXEC"
 then
 	PS1='\[\033]0;$MSYSTEM:\w\007

@@ -599,15 +599,6 @@ each commit introduces are shown.</p></div>
 <div class="sectionbody">
 <div class="dlist"><dl>
 <dt class="hdlist1">
--&lt;n&gt;
-</dt>
-<dd>
-<p>
-        Limits the number of commits to show.
-        Note that this is a commit limiting option, see below.
-</p>
-</dd>
-<dt class="hdlist1">
 &lt;since&gt;..&lt;until&gt;
 </dt>
 <dd>
@@ -616,7 +607,7 @@ each commit introduces are shown.</p></div>
         either &lt;since&gt; or &lt;until&gt; is omitted, it defaults to
         <tt>HEAD</tt>, i.e. the tip of the current branch.
         For a more complete list of ways to spell &lt;since&gt;
-        and &lt;until&gt;, see .
+        and &lt;until&gt;, see <a href="gitrevisions.html">gitrevisions(7)</a>.
 </p>
 </dd>
 <dt class="hdlist1">
@@ -695,11 +686,19 @@ be prefixed with "-- " to separate them from options or refnames.</p></div>
 <h3 id="_commit_limiting">Commit Limiting</h3><div style="clear:left"></div>
 <div class="paragraph"><p>Besides specifying a range of commits that should be listed using the
 special notations explained in the description, additional commit
-limiting may be applied. Note that they are applied before commit
-ordering and formatting options, such as <em>--reverse</em>.</p></div>
+limiting may be applied.</p></div>
+<div class="paragraph"><p>Using more options generally further limits the output (e.g.
+<tt>--since=&lt;date1&gt;</tt> limits to commits newer than <tt>&lt;date1&gt;</tt>, and using it
+with <tt>--grep=&lt;pattern&gt;</tt> further limits to commits whose log message
+has a line that matches <tt>&lt;pattern&gt;</tt>), unless otherwise noted.</p></div>
+<div class="paragraph"><p>Note that these are applied before commit
+ordering and formatting options, such as <tt>--reverse</tt>.</p></div>
 <div class="dlist"><dl>
 <dt class="hdlist1">
--n <em>number</em>
+-&lt;number&gt;
+</dt>
+<dt class="hdlist1">
+-n &lt;number&gt;
 </dt>
 <dt class="hdlist1">
 --max-count=&lt;number&gt;
@@ -748,7 +747,22 @@ ordering and formatting options, such as <em>--reverse</em>.</p></div>
 <dd>
 <p>
         Limit the commits output to ones with author/committer
-        header lines that match the specified pattern (regular expression).
+        header lines that match the specified pattern (regular
+        expression).  With more than one <tt>--author=&lt;pattern&gt;</tt>,
+        commits whose author matches any of the given patterns are
+        chosen (similarly for multiple <tt>--committer=&lt;pattern&gt;</tt>).
+</p>
+</dd>
+<dt class="hdlist1">
+--grep-reflog=&lt;pattern&gt;
+</dt>
+<dd>
+<p>
+        Limit the commits output to ones with reflog entries that
+        match the specified pattern (regular expression). With
+        more than one <tt>--grep-reflog</tt>, commits whose reflog message
+        matches any of the given patterns are chosen.  It is an
+        error to use this option unless <tt>--walk-reflogs</tt> is in use.
 </p>
 </dd>
 <dt class="hdlist1">
@@ -757,8 +771,13 @@ ordering and formatting options, such as <em>--reverse</em>.</p></div>
 <dd>
 <p>
         Limit the commits output to ones with log message that
-        matches the specified pattern (regular expression).
+        matches the specified pattern (regular expression).  With
+        more than one <tt>--grep=&lt;pattern&gt;</tt>, commits whose message
+        matches any of the given patterns are chosen (but see
+        <tt>--all-match</tt>).
 </p>
+<div class="paragraph"><p>When <tt>--show-notes</tt> is in effect, the message from the notes as
+if it is part of the log message.</p></div>
 </dd>
 <dt class="hdlist1">
 --all-match
@@ -766,7 +785,7 @@ ordering and formatting options, such as <em>--reverse</em>.</p></div>
 <dd>
 <p>
         Limit the commits output to ones that match all given --grep,
-        --author and --committer instead of ones that match at least one.
+        instead of ones that match at least one.
 </p>
 </dd>
 <dt class="hdlist1">
@@ -1037,7 +1056,7 @@ used in the output.  When the starting commit is specified as
 instead.  Under <em>--pretty=oneline</em>, the commit message is
 prefixed with this information on the same line.
 This option cannot be combined with <em>--reverse</em>.
-See also .</p></div>
+See also <a href="git-reflog.html">git-reflog(1)</a>.</p></div>
 </dd>
 <dt class="hdlist1">
 --merge
@@ -1413,23 +1432,37 @@ commits are marked as TREESAME (subject to be simplified away).</p></div>
 <div class="paragraph"><p>By default, the commits are shown in reverse chronological order.</p></div>
 <div class="dlist"><dl>
 <dt class="hdlist1">
---topo-order
-</dt>
-<dd>
-<p>
-        This option makes them appear in topological order (i.e.
-        descendant commits are shown before their parents).
-</p>
-</dd>
-<dt class="hdlist1">
 --date-order
 </dt>
 <dd>
 <p>
-        This option is similar to <em>--topo-order</em> in the sense that no
-        parent comes before all of its children, but otherwise things
-        are still ordered in the commit timestamp order.
+        Show no parents before all of its children are shown, but
+        otherwise show commits in the commit timestamp order.
 </p>
+</dd>
+<dt class="hdlist1">
+--topo-order
+</dt>
+<dd>
+<p>
+        Show no parents before all of its children are shown, and
+        avoid showing commits on multiple lines of history
+        intermixed.
+</p>
+<div class="paragraph"><p>For example, in a commit history like this:</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><tt>    ---1----2----4----7
+        \              \
+         3----5----6----8---</tt></pre>
+</div></div>
+<div class="paragraph"><p>where the numbers denote the order of commit timestamps, <tt>git
+rev-list</tt> and friends with <tt>--date-order</tt> show the commits in the
+timestamp order: 8 7 6 5 4 3 2 1.</p></div>
+<div class="paragraph"><p>With <tt>--topo-order</tt>, they would show 8 6 5 3 7 4 2 1 (or 8 7 4 2 6 5
+3 1); some older commits are shown before newer ones in order to
+avoid showing the commits from two parallel development track mixed
+together.</p></div>
 </dd>
 <dt class="hdlist1">
 --reverse
@@ -1462,7 +1495,7 @@ commits are marked as TREESAME (subject to be simplified away).</p></div>
 <p>
         Similar to <em>--objects</em>, but also print the IDs of excluded
         commits prefixed with a "-" character.  This is used by
-         to build "thin" pack, which records
+        <a href="git-pack-objects.html">git-pack-objects(1)</a> to build "thin" pack, which records
         objects in deltified form based on objects contained in these
         excluded commits to reduce network traffic.
 </p>
@@ -1477,11 +1510,16 @@ commits are marked as TREESAME (subject to be simplified away).</p></div>
 </p>
 </dd>
 <dt class="hdlist1">
---no-walk
+--no-walk[=(sorted|unsorted)]
 </dt>
 <dd>
 <p>
-        Only show the given revs, but do not traverse their ancestors.
+        Only show the given commits, but do not traverse their ancestors.
+        This has no effect if a range is specified. If the argument
+        "unsorted" is given, the commits are show in the order they were
+        given on the command line. Otherwise (if "sorted" or no argument
+        was given), the commits are show in reverse chronological order
+        by commit time.
 </p>
 </dd>
 <dt class="hdlist1">
@@ -1510,7 +1548,7 @@ commits are marked as TREESAME (subject to be simplified away).</p></div>
         format.  When omitted, the format defaults to <em>medium</em>.
 </p>
 <div class="paragraph"><p>Note: you can specify the default pretty format in the repository
-configuration (see ).</p></div>
+configuration (see <a href="git-config.html">git-config(1)</a>).</p></div>
 </dd>
 <dt class="hdlist1">
 --abbrev-commit
@@ -1561,7 +1599,7 @@ people using 80-column terminals.</p></div>
 </dt>
 <dd>
 <p>
-        Show the notes (see ) that annotate the
+        Show the notes (see <a href="git-notes.html">git-notes(1)</a>) that annotate the
         commit, when showing the commit log message.  This is the default
         for <tt>git log</tt>, <tt>git show</tt> and <tt>git whatchanged</tt> commands when
         there is no <tt>--pretty</tt>, <tt>--format</tt> nor <tt>--oneline</tt> option given
@@ -1569,7 +1607,7 @@ people using 80-column terminals.</p></div>
 </p>
 <div class="paragraph"><p>By default, the notes shown are from the notes refs listed in the
 <em>core.notesRef</em> and <em>notes.displayRef</em> variables (or corresponding
-environment overrides). See  for more details.</p></div>
+environment overrides). See <a href="git-config.html">git-config(1)</a> for more details.</p></div>
 <div class="paragraph"><p>With an optional <em>&lt;ref&gt;</em> argument, show this notes ref instead of the
 default notes ref(s). The ref is taken to be in <tt>refs/notes/</tt> if it
 is not qualified.</p></div>
@@ -1600,6 +1638,15 @@ being displayed. Examples: "--notes=foo" will show only notes from
 <p>
         These options are deprecated. Use the above --notes/--no-notes
         options instead.
+</p>
+</dd>
+<dt class="hdlist1">
+--show-signature
+</dt>
+<dd>
+<p>
+        Check the validity of a signed commit object by passing the signature
+        to <tt>gpg --verify</tt> and show the output.
 </p>
 </dd>
 <dt class="hdlist1">
@@ -1697,8 +1744,8 @@ format, often found in E-mail messages.</p></div>
 </dl></div>
 <h3 id="_diff_formatting">Diff Formatting</h3><div style="clear:left"></div>
 <div class="paragraph"><p>Below are listed options that control the formatting of diff output.
-Some of them are specific to , however other diff
-options may be given. See  for more options.</p></div>
+Some of them are specific to <a href="git-rev-list.html">git-rev-list(1)</a>, however other diff
+options may be given. See <a href="git-diff-files.html">git-diff-files(1)</a> for more options.</p></div>
 <div class="dlist"><dl>
 <dt class="hdlist1">
 -c
@@ -1717,7 +1764,7 @@ options may be given. See  for more options.</p></div>
 </dt>
 <dd>
 <p>
-        This flag implies the <em>-c</em> options and further compresses the
+        This flag implies the <em>-c</em> option and further compresses the
         patch output by omitting uninteresting hunks whose contents in
         the parents have only two variants and the merge result picks
         one of them without modification.
@@ -1777,7 +1824,7 @@ file.</p></div>
 additional formats by setting a pretty.&lt;name&gt;
 config option to either another format name, or a
 <em>format:</em> string, as described below (see
-). Here are the details of the
+<a href="git-config.html">git-config(1)</a>). Here are the details of the
 built-in formats:</p></div>
 <div class="ulist"><ul>
 <li>
@@ -1944,7 +1991,7 @@ The title was &gt;&gt;t4119: test autocomputing -p&lt;n&gt; for traditional diff
 </li>
 <li>
 <p>
-<em>%aN</em>: author name (respecting .mailmap, see  or )
+<em>%aN</em>: author name (respecting .mailmap, see <a href="git-shortlog.html">git-shortlog(1)</a> or <a href="git-blame.html">git-blame(1)</a>)
 </p>
 </li>
 <li>
@@ -1954,7 +2001,7 @@ The title was &gt;&gt;t4119: test autocomputing -p&lt;n&gt; for traditional diff
 </li>
 <li>
 <p>
-<em>%aE</em>: author email (respecting .mailmap, see  or )
+<em>%aE</em>: author email (respecting .mailmap, see <a href="git-shortlog.html">git-shortlog(1)</a> or <a href="git-blame.html">git-blame(1)</a>)
 </p>
 </li>
 <li>
@@ -1989,7 +2036,7 @@ The title was &gt;&gt;t4119: test autocomputing -p&lt;n&gt; for traditional diff
 </li>
 <li>
 <p>
-<em>%cN</em>: committer name (respecting .mailmap, see  or )
+<em>%cN</em>: committer name (respecting .mailmap, see <a href="git-shortlog.html">git-shortlog(1)</a> or <a href="git-blame.html">git-blame(1)</a>)
 </p>
 </li>
 <li>
@@ -1999,7 +2046,7 @@ The title was &gt;&gt;t4119: test autocomputing -p&lt;n&gt; for traditional diff
 </li>
 <li>
 <p>
-<em>%cE</em>: committer email (respecting .mailmap, see  or )
+<em>%cE</em>: committer email (respecting .mailmap, see <a href="git-shortlog.html">git-shortlog(1)</a> or <a href="git-blame.html">git-blame(1)</a>)
 </p>
 </li>
 <li>
@@ -2029,7 +2076,7 @@ The title was &gt;&gt;t4119: test autocomputing -p&lt;n&gt; for traditional diff
 </li>
 <li>
 <p>
-<em>%d</em>: ref names, like the --decorate option of 
+<em>%d</em>: ref names, like the --decorate option of <a href="git-log.html">git-log(1)</a>
 </p>
 </li>
 <li>
@@ -2064,6 +2111,21 @@ The title was &gt;&gt;t4119: test autocomputing -p&lt;n&gt; for traditional diff
 </li>
 <li>
 <p>
+<em>%GG</em>: raw verification message from GPG for a signed commit
+</p>
+</li>
+<li>
+<p>
+<em>%G?</em>: show either "G" for Good or "B" for Bad for a signed commit
+</p>
+</li>
+<li>
+<p>
+<em>%GS</em>: show the name of the signer for a signed commit
+</p>
+</li>
+<li>
+<p>
 <em>%gD</em>: reflog selector, e.g., <tt>refs/stash@{1}</tt>
 </p>
 </li>
@@ -2079,7 +2141,7 @@ The title was &gt;&gt;t4119: test autocomputing -p&lt;n&gt; for traditional diff
 </li>
 <li>
 <p>
-<em>%gN</em>: reflog identity name (respecting .mailmap, see  or )
+<em>%gN</em>: reflog identity name (respecting .mailmap, see <a href="git-shortlog.html">git-shortlog(1)</a> or <a href="git-blame.html">git-blame(1)</a>)
 </p>
 </li>
 <li>
@@ -2089,7 +2151,7 @@ The title was &gt;&gt;t4119: test autocomputing -p&lt;n&gt; for traditional diff
 </li>
 <li>
 <p>
-<em>%gE</em>: reflog identity email (respecting .mailmap, see  or )
+<em>%gE</em>: reflog identity email (respecting .mailmap, see <a href="git-shortlog.html">git-shortlog(1)</a> or <a href="git-blame.html">git-blame(1)</a>)
 </p>
 </li>
 <li>
@@ -2145,7 +2207,7 @@ The title was &gt;&gt;t4119: test autocomputing -p&lt;n&gt; for traditional diff
 <li>
 <p>
 <em>%w([&lt;w&gt;[,&lt;i1&gt;[,&lt;i2&gt;]]])</em>: switch line wrapping, like the -w option of
-  .
+  <a href="git-shortlog.html">git-shortlog(1)</a>.
 </p>
 </li>
 </ul></div>
@@ -2288,7 +2350,7 @@ $ git log -2 --pretty=%h 4da45bef</tt></pre>
         Generate a diffstat. By default, as much space as necessary
         will be used for the filename part, and the rest for the graph
         part. Maximum width defaults to terminal width, or 80 columns
-        if not connected to a terminal, and can be overriden by
+        if not connected to a terminal, and can be overridden by
         <tt>&lt;width&gt;</tt>. The width of the filename part can be limited by
         giving another width <tt>&lt;name-width&gt;</tt> after a comma. The width
         of the graph part can be limited by using
@@ -2333,7 +2395,7 @@ $ git log -2 --pretty=%h 4da45bef</tt></pre>
         sub-directory. The behavior of <tt>--dirstat</tt> can be customized by
         passing it a comma separated list of parameters.
         The defaults are controlled by the <tt>diff.dirstat</tt> configuration
-        variable (see ).
+        variable (see <a href="git-config.html">git-config(1)</a>).
         The following parameters are available:
 </p>
 <div class="dlist"><dl>
@@ -2456,7 +2518,7 @@ any of those replacements occurred.</p></div>
 <p>
         Specify how differences in submodules are shown.  When <tt>--submodule</tt>
         or <tt>--submodule=log</tt> is given, the <em>log</em> format is used.  This format lists
-        the commits in the range like  <tt>summary</tt> does.
+        the commits in the range like <a href="git-submodule.html">git-submodule(1)</a> <tt>summary</tt> does.
         Omitting the <tt>--submodule</tt> option or specifying <tt>--submodule=short</tt>,
         uses the <em>short</em> format. This format just shows the names of the commits
         at the beginning and end of the range.
@@ -2552,7 +2614,7 @@ expression to make sure that it matches all non-whitespace characters.
 A match that contains a newline is silently truncated(!) at the
 newline.</p></div>
 <div class="paragraph"><p>The regex can also be set via a diff driver or configuration option, see
- or .  Giving it explicitly
+<a href="gitattributes.html">gitattributes(1)</a> or <a href="git-config.html">git-config(1)</a>.  Giving it explicitly
 overrides any diff driver or configuration setting.  Diff drivers
 override configuration settings.</p></div>
 </dd>
@@ -2749,7 +2811,7 @@ of a delete/create pair.</p></div>
         Look for differences that introduce or remove an instance of
         &lt;string&gt;. Note that this is different than the string simply
         appearing in diff output; see the <em>pickaxe</em> entry in
-         for more details.
+        <a href="gitdiffcore.html">gitdiffcore(7)</a> for more details.
 </p>
 </dd>
 <dt class="hdlist1">
@@ -2882,8 +2944,8 @@ of a delete/create pair.</p></div>
 <dd>
 <p>
         Allow an external diff helper to be executed. If you set an
-        external diff driver with , you need
-        to use this option with  and friends.
+        external diff driver with <a href="gitattributes.html">gitattributes(5)</a>, you need
+        to use this option with <a href="git-log.html">git-log(1)</a> and friends.
 </p>
 </dd>
 <dt class="hdlist1">
@@ -2903,12 +2965,12 @@ of a delete/create pair.</p></div>
 <dd>
 <p>
         Allow (or disallow) external text conversion filters to be run
-        when comparing binary files. See  for
+        when comparing binary files. See <a href="gitattributes.html">gitattributes(5)</a> for
         details. Because textconv filters are typically a one-way
         conversion, the resulting diff is suitable for human
         consumption, but cannot be applied. For this reason, textconv
-        filters are enabled by default only for  and
-        , but not for  or
+        filters are enabled by default only for <a href="git-diff.html">git-diff(1)</a> and
+        <a href="git-log.html">git-log(1)</a>, but not for <a href="git-format-patch.html">git-format-patch(1)</a> or
         diff plumbing commands.
 </p>
 </dd>
@@ -2922,7 +2984,7 @@ of a delete/create pair.</p></div>
         Using "none" will consider the submodule modified when it either contains
         untracked or modified files or its HEAD differs from the commit recorded
         in the superproject and can be used to override any settings of the
-        <em>ignore</em> option in  or . When
+        <em>ignore</em> option in <a href="git-config.html">git-config(1)</a> or <a href="gitmodules.html">gitmodules(5)</a>. When
         "untracked" is used submodules are not considered dirty when they only
         contain untracked content (but they are still scanned for modified
         content). Using "dirty" ignores all changes to the work tree of submodules,
@@ -2956,7 +3018,7 @@ of a delete/create pair.</p></div>
 </dd>
 </dl></div>
 <div class="paragraph"><p>For more detailed explanation on these common options, see also
-.</p></div>
+<a href="gitdiffcore.html">gitdiffcore(7)</a>.</p></div>
 </div>
 <h2 id="_generating_patches_with_p">Generating patches with -p</h2>
 <div class="sectionbody">
@@ -3046,8 +3108,8 @@ rename to a</tt></pre>
 <div class="sectionbody">
 <div class="paragraph"><p>Any diff-generating command can take the &#8216;-c` or <tt>--cc</tt> option to
 produce a <em>combined diff</em> when showing a merge. This is the default
-format when showing merges with  or
-. Note also that you can give the `-m&#8217; option to any
+format when showing merges with <a href="git-diff.html">git-diff(1)</a> or
+<a href="git-show.html">git-show(1)</a>. Note also that you can give the `-m&#8217; option to any
 of these commands to force generation of diffs with individual parents
 of a merge.</p></div>
 <div class="paragraph"><p>A <em>combined diff</em> format looks like this:</p></div>
@@ -3249,6 +3311,14 @@ two unresolved merge parents with the working tree file
         topic branches when staying on a single integration branch.
 </p>
 </dd>
+<dt class="hdlist1">
+<tt>git log -3</tt>
+</dt>
+<dd>
+<p>
+        Limits the number of commits to show to 3.
+</p>
+</dd>
 </dl></div>
 </div>
 <h2 id="_discussion">Discussion</h2>
@@ -3328,7 +3398,7 @@ reversible operation.</p></div>
 </div>
 <h2 id="_configuration">Configuration</h2>
 <div class="sectionbody">
-<div class="paragraph"><p>See  for core variables and 
+<div class="paragraph"><p>See <a href="git-config.html">git-config(1)</a> for core variables and <a href="git-diff.html">git-diff(1)</a>
 for settings related to diff generation.</p></div>
 <div class="dlist"><dl>
 <dt class="hdlist1">
@@ -3376,7 +3446,7 @@ mailmap.file
 </dt>
 <dd>
 <p>
-        See .
+        See <a href="git-shortlog.html">git-shortlog(1)</a>.
 </p>
 </dd>
 <dt class="hdlist1">
@@ -3387,7 +3457,7 @@ notes.displayRef
         Which refs, in addition to the default set by <tt>core.notesRef</tt>
         or <em>GIT_NOTES_REF</em>, to read notes from when showing commit
         messages with the <em>log</em> family of commands.  See
-        .
+        <a href="git-notes.html">git-notes(1)</a>.
 </p>
 <div class="paragraph"><p>May be an unabbreviated ref name or a glob and may be specified
 multiple times.  A warning will be issued for refs that do not exist,
@@ -3400,13 +3470,13 @@ and overridden by the <tt>--notes=&lt;ref&gt;</tt> option.</p></div>
 </div>
 <h2 id="_git">GIT</h2>
 <div class="sectionbody">
-<div class="paragraph"><p>Part of the  suite</p></div>
+<div class="paragraph"><p>Part of the <a href="git.html">git(1)</a> suite</p></div>
 </div>
 </div>
 <div id="footnotes"><hr /></div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2012-05-02 15:00:44 PDT
+Last updated 2012-09-12 15:56:23 PDT
 </div>
 </div>
 </body>

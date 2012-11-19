@@ -586,7 +586,7 @@ git-remote(1) Manual Page
 <div class="verseblock-content"><em>git remote</em> [-v | --verbose]
 <em>git remote add</em> [-t &lt;branch&gt;] [-m &lt;master&gt;] [-f] [--tags|--no-tags] [--mirror=&lt;fetch|push&gt;] &lt;name&gt; &lt;url&gt;
 <em>git remote rename</em> &lt;old&gt; &lt;new&gt;
-<em>git remote rm</em> &lt;name&gt;
+<em>git remote remove</em> &lt;name&gt;
 <em>git remote set-head</em> &lt;name&gt; (-a | -d | &lt;branch&gt;)
 <em>git remote set-branches</em> [--add] &lt;name&gt; &lt;branch&gt;&#8230;
 <em>git remote set-url</em> [--push] &lt;name&gt; &lt;newurl&gt; [&lt;oldurl&gt;]
@@ -666,6 +666,9 @@ configuration settings for the remote are updated.
 <tt>$GIT_DIR/remotes</tt> or <tt>$GIT_DIR/branches</tt>, the remote is converted to
 the configuration file format.</p></div>
 </dd>
+<dt class="hdlist1">
+<em>remove</em>
+</dt>
 <dt class="hdlist1">
 <em>rm</em>
 </dt>
@@ -762,7 +765,7 @@ remotes.&lt;group&gt;.  If a named group is not specified on the command line,
 the configuration parameter remotes.default will be used; if
 remotes.default is not defined, all remotes which do not have the
 configuration parameter remote.&lt;name&gt;.skipDefaultUpdate set to true will
-be updated.  (See ).
+be updated.  (See <a href="git-config.html">git-config(1)</a>).
 </p>
 <div class="paragraph"><p>With <tt>--prune</tt> option, prune all the remotes that are updated.</p></div>
 </dd>
@@ -772,7 +775,7 @@ be updated.  (See ).
 <div class="sectionbody">
 <div class="paragraph"><p>The remote configuration is achieved using the <tt>remote.origin.url</tt> and
 <tt>remote.origin.fetch</tt> configuration variables.  (See
-).</p></div>
+<a href="git-config.html">git-config(1)</a>).</p></div>
 </div>
 <h2 id="_examples">Examples</h2>
 <div class="sectionbody">
@@ -818,17 +821,19 @@ $ git merge origin</tt></pre>
 </div>
 <h2 id="_see_also">SEE ALSO</h2>
 <div class="sectionbody">
-<div class="paragraph"><p></p></div>
+<div class="paragraph"><p><a href="git-fetch.html">git-fetch(1)</a>
+<a href="git-branch.html">git-branch(1)</a>
+<a href="git-config.html">git-config(1)</a></p></div>
 </div>
 <h2 id="_git">GIT</h2>
 <div class="sectionbody">
-<div class="paragraph"><p>Part of the  suite</p></div>
+<div class="paragraph"><p>Part of the <a href="git.html">git(1)</a> suite</p></div>
 </div>
 </div>
 <div id="footnotes"><hr /></div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2012-05-02 15:00:44 PDT
+Last updated 2012-09-12 15:56:23 PDT
 </div>
 </div>
 </body>
