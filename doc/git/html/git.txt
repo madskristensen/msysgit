@@ -43,10 +43,18 @@ unreleased) version of git, that is available from 'master'
 branch of the `git.git` repository.
 Documentation for older releases are available here:
 
-* link:v1.8.0/git.html[documentation for release 1.8.0]
+* link:v1.8.1/git.html[documentation for release 1.8.1]
 
 * release notes for
-  link:RelNotes/1.8.0.txt[1.8.0],
+  link:RelNotes/1.8.1.txt[1.8.1].
+
+* link:v1.8.0.3/git.html[documentation for release 1.8.0.3]
+
+* release notes for
+  link:RelNotes/1.8.0.3.txt[1.8.0.3],
+  link:RelNotes/1.8.0.2.txt[1.8.0.2],
+  link:RelNotes/1.8.0.1.txt[1.8.0.1],
+  link:RelNotes/1.8.0.txt[1.8.0].
 
 * link:v1.7.12.4/git.html[documentation for release 1.7.12.4]
 
@@ -648,6 +656,7 @@ git so take care if using Cogito etc.
 	If the 'GIT_DIR' environment variable is set then it
 	specifies a path to use instead of the default `.git`
 	for the base of the repository.
+	The '--git-dir' command-line option also sets this value.
 
 'GIT_WORK_TREE'::
 	Set the path to the working tree.  The value will not be
@@ -867,8 +876,10 @@ Authors
 -------
 Git was started by Linus Torvalds, and is currently maintained by Junio
 C Hamano. Numerous contributions have come from the git mailing list
-<git@vger.kernel.org>. For a more complete list of contributors, see
-http://git-scm.com/about. If you have a clone of git.git itself, the
+<git@vger.kernel.org>.  http://www.ohloh.net/p/git/contributors/summary
+gives you a more complete list of contributors.
+
+If you have a clone of git.git itself, the
 output of linkgit:git-shortlog[1] and linkgit:git-blame[1] can show you
 the authors for specific parts of the project.
 

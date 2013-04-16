@@ -240,7 +240,7 @@ set ::msgcat::header "Project-Id-Version: fr\nReport-Msgid-Bugs-To: \nPOT-Creati
 ::msgcat::mcset fr "Target Directory:" "R\u00e9pertoire cible :"
 ::msgcat::mcset fr "Clone Type:" "Type de clonage :"
 ::msgcat::mcset fr "Standard (Fast, Semi-Redundant, Hardlinks)" "Standard (rapide, semi-redondant, liens durs)"
-::msgcat::mcset fr "Full Copy (Slower, Redundant Backup)" "Copy compl\u00e8te (plus lent, sauvegarde redondante)"
+::msgcat::mcset fr "Full Copy (Slower, Redundant Backup)" "Copie compl\u00e8te (plus lent, sauvegarde redondante)"
 ::msgcat::mcset fr "Shared (Fastest, Not Recommended, No Backup)" "Partag\u00e9 (le plus rapide, non recommand\u00e9, pas de sauvegarde)"
 ::msgcat::mcset fr "Not a Git repository: %s" "'%s' n'est pas un d\u00e9p\u00f4t Git."
 ::msgcat::mcset fr "Standard only available for local repository." "Standard n'est disponible que pour un d\u00e9p\u00f4t local."

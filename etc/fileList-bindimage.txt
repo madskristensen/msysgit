@@ -213,6 +213,7 @@ libexec/git-core/git-remote-ftp.exe
 libexec/git-core/git-remote-ftps.exe
 libexec/git-core/git-remote-http.exe
 libexec/git-core/git-remote-https.exe
+libexec/git-core/git-remote-testsvn.exe
 libexec/git-core/git-remote.exe
 libexec/git-core/git-replace.exe
 libexec/git-core/git-repo-config.exe

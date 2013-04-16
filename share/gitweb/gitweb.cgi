@@ -27,7 +27,7 @@ BEGIN {
 	CGI->compile() if $ENV{'MOD_PERL'};
 }
 
-our $version = "1.8.0.msysgit.0";
+our $version = "1.8.1.msysgit.1";
 
 our ($my_url, $my_uri, $base_url, $path_info, $home_link);
 sub evaluate_uri {
@@ -270,16 +270,15 @@ our %highlight_basename = (
 our %highlight_ext = (
 	# main extensions, defining name of syntax;
 	# see files in /usr/share/highlight/langDefs/ directory
-	map { $_ => $_ }
-		qw(py c cpp rb java css php sh pl js tex bib xml awk bat ini spec tcl sql make),
+	(map { $_ => $_ } qw(py rb java css js tex bib xml awk bat ini spec tcl sql)),
 	# alternate extensions, see /etc/highlight/filetypes.conf
-	'h' => 'c',
-	map { $_ => 'sh'  } qw(bash zsh ksh),
-	map { $_ => 'cpp' } qw(cxx c++ cc),
-	map { $_ => 'php' } qw(php3 php4 php5 phps),
-	map { $_ => 'pl'  } qw(perl pm), # perhaps also 'cgi'
-	map { $_ => 'make'} qw(mak mk),
-	map { $_ => 'xml' } qw(xhtml html htm),
+	(map { $_ => 'c'   } qw(c h)),
+	(map { $_ => 'sh'  } qw(sh bash zsh ksh)),
+	(map { $_ => 'cpp' } qw(cpp cxx c++ cc)),
+	(map { $_ => 'php' } qw(php php3 php4 php5 phps)),
+	(map { $_ => 'pl'  } qw(pl perl pm)), # perhaps also 'cgi'
+	(map { $_ => 'make'} qw(make mak mk)),
+	(map { $_ => 'xml' } qw(xml xhtml html htm)),
 );
 
 # You define site-wide feature defaults here; override them with
@@ -541,7 +540,7 @@ our %feature = (
 	# $feature{'remote_heads'}{'default'} = [1];
 	# To have project specific config enable override in $GITWEB_CONFIG
 	# $feature{'remote_heads'}{'override'} = 1;
-	# and in project config gitweb.remote_heads = 0|1;
+	# and in project config gitweb.remoteheads = 0|1;
 	'remote_heads' => {
 		'sub' => sub { feature_bool('remote_heads', @_) },
 		'override' => 0,
@@ -1557,7 +1556,7 @@ sub sanitize {
 	return undef unless defined $str;
 
 	$str = to_utf8($str);
-	$str =~ s|([[:cntrl:]])|($1 =~ /[\t\n\r]/ ? $1 : quot_cec($1))|eg;
+	$str =~ s|([[:cntrl:]])|(index("\t\n\r", $1) != -1 ? $1 : quot_cec($1))|eg;
 	return $str;
 }
 
@@ -2697,12 +2696,15 @@ sub git_get_project_config {
 	# only subsection, if exists, is case sensitive,
 	# and not lowercased by 'git config -z -l'
 	if (my ($hi, $mi, $lo) = ($key =~ /^([^.]*)\.(.*)\.([^.]*)$/)) {
+		$lo =~ s/_//g;
 		$key = join(".", lc($hi), $mi, lc($lo));
+		return if ($lo =~ /\W/ || $hi =~ /\W/);
 	} else {
 		$key = lc($key);
+		$key =~ s/_//g;
+		return if ($key =~ /\W/);
 	}
 	$key =~ s/^gitweb\.//;
-	return if ($key =~ m/\W/);
 
 	# type sanity check
 	if (defined $type) {
@@ -5549,23 +5551,30 @@ sub fill_project_list_info {
 
 sub sort_projects_list {
 	my ($projlist, $order) = @_;
-	my @projects;
 
-	my %order_info = (
-		project => { key => 'path', type => 'str' },
-		descr => { key => 'descr_long', type => 'str' },
-		owner => { key => 'owner', type => 'str' },
-		age => { key => 'age', type => 'num' }
-	);
-	my $oi = $order_info{$order};
-	return @$projlist unless defined $oi;
-	if ($oi->{'type'} eq 'str') {
-		@projects = sort {$a->{$oi->{'key'}} cmp $b->{$oi->{'key'}}} @$projlist;
-	} else {
-		@projects = sort {$a->{$oi->{'key'}} <=> $b->{$oi->{'key'}}} @$projlist;
+	sub order_str {
+		my $key = shift;
+		return sub { $a->{$key} cmp $b->{$key} };
 	}
 
-	return @projects;
+	sub order_num_then_undef {
+		my $key = shift;
+		return sub {
+			defined $a->{$key} ?
+				(defined $b->{$key} ? $a->{$key} <=> $b->{$key} : -1) :
+				(defined $b->{$key} ? 1 : 0)
+		};
+	}
+
+	my %orderings = (
+		project => order_str('path'),
+		descr => order_str('descr_long'),
+		owner => order_str('owner'),
+		age => order_num_then_undef('age'),
+	);
+
+	my $ordering = $orderings{$order};
+	return defined $ordering ? sort $ordering @$projlist : @$projlist;
 }
 
 # returns a hash of categories, containing the list of project
@@ -8156,6 +8165,7 @@ sub git_feed {
 		$feed_type = 'history';
 	}
 	$title .= " $feed_type";
+	$title = esc_html($title);
 	my $descr = git_get_project_description($project);
 	if (defined $descr) {
 		$descr = esc_html($descr);
