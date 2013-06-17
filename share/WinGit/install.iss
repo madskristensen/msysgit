@@ -11,9 +11,9 @@
 #define APP_BUILTINS  'etc\fileList-builtins.txt'
 #define APP_BINDIMAGE 'etc\fileList-bindimage.txt'
 
-#define COMP_CONSOLE_FONT 'Use a TrueType font in all console windows (not only for Git Bash)'
+#define PLINK_PATH_ERROR_MSG 'Please enter a valid path to a version of Plink.'
 
-#define DROP_HANDLER_GUID '{{86C86720-42A0-1069-A2E8-08002B30309D}}'
+#define DROP_HANDLER_GUID '{{86C86720-42A0-1069-A2E8-08002B30309D}'
 
 [Setup]
 ; Compiler-related
@@ -57,21 +57,21 @@ WizardImageFile=git.bmp
 WizardSmallImageFile=gitsmall.bmp
 
 [Types]
-; Define a dummy type to avoid getting the default ones.
-Name: custom; Description: Custom installation; Flags: iscustom
+; Define a custom type to avoid getting the three default types.
+Name: default; Description: Default installation; Flags: iscustom
 
 [Components]
-Name: icons; Description: Additional icons; Types: custom
-Name: icons\quicklaunch; Description: In the Quick Launch; Types: custom
-Name: icons\desktop; Description: On the Desktop; Types: custom
-Name: ext; Description: Windows Explorer integration; Types: custom
-Name: ext\reg; Description: Simple context menu (Registry based); Flags: exclusive; Types: custom
-Name: ext\reg\shellhere; Description: Git Bash Here; Types: custom
-Name: ext\reg\guihere; Description: Git GUI Here; Types: custom
-Name: ext\cheetah; Description: Advanced context menu (git-cheetah plugin); Flags: exclusive; Types: custom
-Name: assoc; Description: Associate .git* configuration files with the default text editor; Types: custom
-Name: assoc_sh; Description: Associate .sh files to be run with Bash; Types: custom
-Name: consolefont; Description: {#COMP_CONSOLE_FONT}; Types: custom
+Name: icons; Description: Additional icons
+Name: icons\quicklaunch; Description: In the Quick Launch
+Name: icons\desktop; Description: On the Desktop
+Name: ext; Description: Windows Explorer integration; Types: default
+Name: ext\reg; Description: Simple context menu (Registry based); Flags: exclusive; Types: default
+Name: ext\reg\shellhere; Description: Git Bash Here; Types: default
+Name: ext\reg\guihere; Description: Git GUI Here; Types: default
+Name: ext\cheetah; Description: Advanced context menu (git-cheetah plugin); Flags: exclusive; Types: default
+Name: assoc; Description: Associate .git* configuration files with the default text editor; Types: default
+Name: assoc_sh; Description: Associate .sh files to be run with Bash; Types: default
+Name: consolefont; Description: Use a TrueType font in all console windows (not only for Git Bash)
 
 [Files]
 ; Install files that might be in use during setup under a different name.
@@ -138,7 +138,7 @@ Root: HKLM; Subkey: Software\Classes\sh_auto_file; ValueType: string; ValueData:
 Root: HKLM; Subkey: Software\Classes\sh_auto_file\shell\open\command; ValueType: string; ValueData: "{syswow64}\cmd.exe /C """"{app}\bin\sh.exe"" ""--login"" ""%1"" %*"""; Flags: createvalueifdoesntexist uninsdeletekeyifempty uninsdeletevalue; Check: IsAdminLoggedOn; Components: assoc_sh; OnlyBelowVersion: 6.0
 Root: HKLM; Subkey: Software\Classes\sh_auto_file\shell\open\command; ValueType: string; ValueData: """{app}\bin\sh.exe"" ""--login"" ""%1"" %*"; Flags: createvalueifdoesntexist uninsdeletekeyifempty uninsdeletevalue; Check: IsAdminLoggedOn; Components: assoc_sh; MinVersion: 6.0
 Root: HKLM; Subkey: Software\Classes\sh_auto_file\DefaultIcon; ValueType: string; ValueData: "%SystemRoot%\System32\shell32.dll,-153"; Flags: createvalueifdoesntexist uninsdeletekeyifempty uninsdeletevalue; Check: IsAdminLoggedOn; Components: assoc_sh
-Root: HKLM; Subkey: Software\Classes\sh_auto_file\ShellEx\DropHandler; ValueType: string; ValueData: {#DROP_HANDLER_GUID}; Flags: createvalueifdoesntexist uninsdeletekeyifempty uninsdeletevalue; Check: IsAdminLoggedOn; Components: assoc_sh
+Root: HKLM; Subkey: Software\Classes\sh_auto_file\ShellEx\DropHandler; ValueType: string; ValueData: {#DROP_HANDLER_GUID}; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: IsAdminLoggedOn; Components: assoc_sh
 
 ; Install under HKEY_CURRENT_USER if a non-administrator is installing.
 Root: HKCU; Subkey: Software\Classes\.sh; ValueType: string; ValueData: sh_auto_file; Flags: createvalueifdoesntexist uninsdeletekeyifempty uninsdeletevalue; Check: not IsAdminLoggedOn; Components: assoc_sh
@@ -146,7 +146,7 @@ Root: HKCU; Subkey: Software\Classes\sh_auto_file; ValueType: string; ValueData:
 Root: HKCU; Subkey: Software\Classes\sh_auto_file\shell\open\command; ValueType: string; ValueData: "{syswow64}\cmd.exe /C """"{app}\bin\sh.exe"" ""--login"" ""%1"" %*"""; Flags: createvalueifdoesntexist uninsdeletekeyifempty uninsdeletevalue; Check: not IsAdminLoggedOn; Components: assoc_sh; OnlyBelowVersion: 6.0
 Root: HKCU; Subkey: Software\Classes\sh_auto_file\shell\open\command; ValueType: string; ValueData: """{app}\bin\sh.exe"" ""--login"" ""%1"" %*"; Flags: createvalueifdoesntexist uninsdeletekeyifempty uninsdeletevalue; Check: not IsAdminLoggedOn; Components: assoc_sh; MinVersion: 6.0
 Root: HKCU; Subkey: Software\Classes\sh_auto_file\DefaultIcon; ValueType: string; ValueData: "%SystemRoot%\System32\shell32.dll,-153"; Flags: createvalueifdoesntexist uninsdeletekeyifempty uninsdeletevalue; Check: not IsAdminLoggedOn; Components: assoc_sh
-Root: HKCU; Subkey: Software\Classes\sh_auto_file\ShellEx\DropHandler; ValueType: string; ValueData: {#DROP_HANDLER_GUID}; Flags: createvalueifdoesntexist uninsdeletekeyifempty uninsdeletevalue; Check: not IsAdminLoggedOn; Components: assoc_sh
+Root: HKCU; Subkey: Software\Classes\sh_auto_file\ShellEx\DropHandler; ValueType: string; ValueData: {#DROP_HANDLER_GUID}; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: not IsAdminLoggedOn; Components: assoc_sh
 
 [UninstallDelete]
 ; Delete the built-ins.
@@ -245,18 +245,20 @@ var
 
 procedure BrowseForPuTTYFolder(Sender:TObject);
 var
-    Path:String;
+    Name:String;
 begin
-    Path:=ExtractFilePath(EdtPlink.Text);
-    BrowseForFolder('Please select the PuTTY folder:',Path,False);
-    if FileExists(Path+'\TortoisePlink.exe') then begin
-        EdtPlink.Text:=Path+'\TortoisePlink.exe';
-        RdbSSH[GS_Plink].Checked:=True;
-    end else if FileExists(Path+'\plink.exe') then begin
-        EdtPlink.Text:=Path+'\plink.exe';
+    GetOpenFileName(
+        'Please select the Plink executable:',
+        Name,
+        ExtractFilePath(EdtPlink.Text),
+        'Executable Files|*.exe',
+        'exe'
+    );
+    if Pos('plink',LowerCase(Name))>0 then begin
+        EdtPlink.Text:=Name;
         RdbSSH[GS_Plink].Checked:=True;
     end else begin
-        MsgBox('Please enter a valid path to "TortoisePlink.exe" or "plink.exe".',mbError,MB_OK);
+        MsgBox('{#PLINK_PATH_ERROR_MSG}',mbError,MB_OK);
     end;
 end;
 
@@ -372,7 +374,7 @@ var
     PrevPageID:Integer;
     LblGitBash,LblGitCmd,LblGitCmdTools,LblGitCmdToolsWarn:TLabel;
     LblOpenSSH,LblPlink:TLabel;
-    PuTTYSessions:TArrayOfString;
+    PuTTYSessions,EnvSSH:TArrayOfString;
     LblLFOnly,LblCRLFAlways,LblCRLFCommitAsIs:TLabel;
     BtnPlink:TButton;
     Data:String;
@@ -398,7 +400,7 @@ begin
         Caption:='Use Git Bash only';
         Left:=ScaleX(4);
         Top:=ScaleY(8);
-        Width:=ScaleX(129);
+        Width:=ScaleX(405);
         Height:=ScaleY(17);
         Font.Style:=[fsBold];
         TabOrder:=0;
@@ -423,7 +425,7 @@ begin
         Caption:='Run Git from the Windows Command Prompt';
         Left:=ScaleX(4);
         Top:=ScaleY(76);
-        Width:=ScaleX(281);
+        Width:=ScaleX(405);
         Height:=ScaleY(17);
         Font.Style:=[fsBold];
         TabOrder:=1;
@@ -470,7 +472,7 @@ begin
             'sort.exe. Select this option only if you understand the implications.';
         Left:=ScaleX(28);
         Top:=ScaleY(192);
-        Width:=ScaleX(376);
+        Width:=ScaleX(405);
         Height:=ScaleY(26);
         Font.Color:=255;
         Font.Style:=[fsBold];
@@ -506,7 +508,7 @@ begin
             Caption:='Use OpenSSH';
             Left:=ScaleX(4);
             Top:=ScaleY(8);
-            Width:=ScaleX(129);
+            Width:=ScaleX(405);
             Height:=ScaleY(17);
             Font.Style:=[fsBold];
             TabOrder:=0;
@@ -520,7 +522,7 @@ begin
                 'environment variables will not be modified.';
             Left:=ScaleX(28);
             Top:=ScaleY(32);
-            Width:=ScaleX(324);
+            Width:=ScaleX(405);
             Height:=ScaleY(26);
         end;
 
@@ -531,7 +533,7 @@ begin
             Caption:='Use (Tortoise)Plink';
             Left:=ScaleX(4);
             Top:=ScaleY(76);
-            Width:=ScaleX(281);
+            Width:=ScaleX(405);
             Height:=ScaleY(17);
             Font.Style:=[fsBold];
             TabOrder:=1;
@@ -546,16 +548,27 @@ begin
                 'variables will be adjusted to point to the following executable:';
             Left:=ScaleX(28);
             Top:=ScaleY(100);
-            Width:=ScaleX(340);
+            Width:=ScaleX(405);
             Height:=ScaleY(52);
         end;
         EdtPlink:=TEdit.Create(PuTTYPage);
         with EdtPlink do begin
             Parent:=PuTTYPage.Surface;
-            Text:=GetPuTTYLocation;
+
+            EnvSSH:=GetEnvStrings('GIT_SSH',IsAdminLoggedOn);
+            if (GetArrayLength(EnvSSH)=1) and (Pos('plink',LowerCase(EnvSSH[0]))>0) then begin
+                Text:=EnvSSH[0];
+            end;
+            if not FileExists(Text) then begin
+                Text:=GetPreviousData('Plink Path','');
+            end;
+            if not FileExists(Text) then begin
+                Text:=GuessPlinkExecutable;
+            end;
             if not FileExists(Text) then begin
                 Text:='';
             end;
+
             Left:=ScaleX(28);
             Top:=ScaleY(161);
             Width:=ScaleX(316);
@@ -601,7 +614,7 @@ begin
         Caption:='Checkout Windows-style, commit Unix-style line endings';
         Left:=ScaleX(4);
         Top:=ScaleY(8);
-        Width:=ScaleX(340);
+        Width:=ScaleX(405);
         Height:=ScaleY(17);
         Font.Style:=[fsBold];
         TabOrder:=0;
@@ -616,7 +629,7 @@ begin
             'this is the recommended setting on Windows ("core.autocrlf" is set to "true").';
         Left:=ScaleX(28);
         Top:=ScaleY(32);
-        Width:=ScaleX(380);
+        Width:=ScaleX(405);
         Height:=ScaleY(47);
     end;
 
@@ -627,7 +640,7 @@ begin
         Caption:='Checkout as-is, commit Unix-style line endings';
         Left:=ScaleX(4);
         Top:=ScaleY(80);
-        Width:=ScaleX(340);
+        Width:=ScaleX(405);
         Height:=ScaleY(17);
         Font.Style:=[fsBold];
         TabOrder:=1;
@@ -642,7 +655,7 @@ begin
             'this is the recommended setting on Unix ("core.autocrlf" is set to "input").';
         Left:=ScaleX(28);
         Top:=ScaleY(104);
-        Width:=ScaleX(380);
+        Width:=ScaleX(405);
         Height:=ScaleY(47);
     end;
 
@@ -653,7 +666,7 @@ begin
         Caption:='Checkout as-is, commit as-is';
         Left:=ScaleX(4);
         Top:=ScaleY(152);
-        Width:=ScaleX(340);
+        Width:=ScaleX(405);
         Height:=ScaleY(17);
         Font.Style:=[fsBold];
         TabOrder:=2;
@@ -668,7 +681,7 @@ begin
             'projects ("core.autocrlf" is set to "false").';
         Left:=ScaleX(28);
         Top:=ScaleY(176);
-        Width:=ScaleX(380);
+        Width:=ScaleX(405);
         Height:=ScaleY(47);
     end;
 
@@ -729,29 +742,20 @@ begin
 end;
 
 procedure CurPageChanged(CurPageID:Integer);
-var
-    i:Integer;
 begin
-    if CurPageID=wpSelectDir then begin
+    if CurPageID=wpInfoBefore then begin
+        if WizardForm.NextButton.Enabled then begin
+            // By default, do not show a blinking cursor for InfoBeforeFile.
+            WizardForm.ActiveControl:=WizardForm.NextButton;
+        end;
+    end else if CurPageID=wpSelectDir then begin
         if not IsDirWritable(WizardDirValue) then begin
             // If the default directory is not writable, choose another default that most likely is.
             // This will be checked later again when the user clicks "Next".
             WizardForm.DirEdit.Text:=ExpandConstant('{userpf}\{#APP_NAME}');
         end;
-    end;
-
-    // Uncheck the console font option by default.
-    if CurPageID=wpSelectComponents then begin
-        for i:=0 to WizardForm.ComponentsList.Items.Count-1 do begin
-            if WizardForm.ComponentsList.ItemCaption[i]='{#COMP_CONSOLE_FONT}' then begin
-                WizardForm.ComponentsList.Checked[i]:=False;
-                Break;
-            end;
-        end;
-    end;
-
-    // Show the "Refresh" button only on the processes page.
-    if (ProcessesPage<>NIL) and (CurPageID=ProcessesPage.ID) then begin
+    end else if (ProcessesPage<>NIL) and (CurPageID=ProcessesPage.ID) then begin
+        // Show the "Refresh" button only on the processes page.
         ProcessesRefresh.Show;
     end else begin
         ProcessesRefresh.Hide;
@@ -782,7 +786,7 @@ begin
         Result:=RdbSSH[GS_OpenSSH].Checked or
             (RdbSSH[GS_Plink].Checked and FileExists(EdtPlink.Text));
         if not Result then begin
-            MsgBox('Please enter a valid path to (Tortoise)Plink.exe.',mbError,MB_OK);
+            MsgBox('{#PLINK_PATH_ERROR_MSG}',mbError,MB_OK);
         end;
     end else if (ProcessesPage<>NIL) and (CurPageID=ProcessesPage.ID) then begin
         // It would have been nicer to just disable the "Next" button, but the
@@ -1162,9 +1166,10 @@ begin
 
     if IsComponentSelected('ext\reg\shellhere') then begin
         Msg:='Git Ba&sh Here';
-        Cmd:='"'+ExpandConstant('{syswow64}')+'\wscript" "'+AppDir+'\Git Bash.vbs" "%v"';
+        Cmd:='"'+ExpandConstant('{syswow64}')+'\wscript" "'+AppDir+'\Git Bash.vbs" "%1"';
         if (not RegWriteStringValue(RootKey,'SOFTWARE\Classes\Directory\shell\git_shell','',Msg)) or
            (not RegWriteStringValue(RootKey,'SOFTWARE\Classes\Directory\shell\git_shell\command','',Cmd)) or
+           (StringChangeEx(Cmd,'%1','%v',false)<>1) or
            (not RegWriteStringValue(RootKey,'SOFTWARE\Classes\Directory\Background\shell\git_shell','',Msg)) or
            (not RegWriteStringValue(RootKey,'SOFTWARE\Classes\Directory\Background\shell\git_shell\command','',Cmd)) then begin
             Msg:='Line {#__LINE__}: Unable to create "Git Bash Here" shell extension.';
@@ -1177,9 +1182,10 @@ begin
 
     if IsComponentSelected('ext\reg\guihere') then begin
         Msg:='Git &GUI Here';
-        Cmd:='"'+AppDir+'\bin\wish.exe" "'+AppDir+'\libexec\git-core\git-gui" "--working-dir" "%v"';
+        Cmd:='"'+AppDir+'\bin\wish.exe" "'+AppDir+'\libexec\git-core\git-gui" "--working-dir" "%1"';
         if (not RegWriteStringValue(RootKey,'SOFTWARE\Classes\Directory\shell\git_gui','',Msg)) or
            (not RegWriteStringValue(RootKey,'SOFTWARE\Classes\Directory\shell\git_gui\command','',Cmd)) or
+           (StringChangeEx(Cmd,'%1','%v',false)<>1) or
            (not RegWriteStringValue(RootKey,'SOFTWARE\Classes\Directory\Background\shell\git_gui','',Msg)) or
            (not RegWriteStringValue(RootKey,'SOFTWARE\Classes\Directory\Background\shell\git_gui\command','',Cmd)) then begin
             Msg:='Line {#__LINE__}: Unable to create "Git GUI Here" shell extension.';
@@ -1237,6 +1243,7 @@ begin
         Data:='OpenSSH';
     end else if RdbSSH[GS_Plink].Checked then begin
         Data:='Plink';
+        SetPreviousData(PreviousDataKey,'Plink Path',EdtPlink.Text);
     end;
     SetPreviousData(PreviousDataKey,'SSH Option',Data);
 
