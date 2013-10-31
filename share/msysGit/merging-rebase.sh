@@ -103,6 +103,19 @@ for commit in $(list_merges $TO..)
 do
 	if is_ours_merge $commit
 	then
+		subject="$(git show -s --format=%s $commit)"
+		case "$subject" in
+		*merging-rebase*) ;;
+		*)
+			printf "%s\n\n%s\n%s\n\n(y/n) " \
+				"Is this the latest merging rebase?" \
+				$commit "$subject"
+			read answer
+			case "$answer" in
+			y*|Y*) ;;
+			*) continue;;
+			esac;;
+		esac
 		REBASING_BASE=$commit
 		break
 	fi
@@ -167,4 +180,4 @@ EOF
 chmod a+x "$TMP_EDITOR"
 
 # Rebase!
-GIT_EDITOR="$TMP_EDITOR" git rebase --autosquash -i ${REBASING_BASE:-$TO}
+GIT_EDITOR="$TMP_EDITOR" GIT_SEQUENCE_EDITOR="$TMP_EDITOR" git rebase --autosquash -i ${REBASING_BASE:-$TO}
