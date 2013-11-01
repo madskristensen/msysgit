@@ -141,6 +141,7 @@ libexec/git-core/git-bundle.exe
 libexec/git-core/git-cat-file.exe
 libexec/git-core/git-check-attr.exe
 libexec/git-core/git-check-ignore.exe
+libexec/git-core/git-check-mailmap.exe
 libexec/git-core/git-check-ref-format.exe
 libexec/git-core/git-checkout-index.exe
 libexec/git-core/git-checkout.exe
@@ -177,7 +178,6 @@ libexec/git-core/git-hash-object.exe
 libexec/git-core/git-help.exe
 libexec/git-core/git-http-backend.exe
 libexec/git-core/git-http-fetch.exe
-libexec/git-core/git-http-push.exe
 libexec/git-core/git-imap-send.exe
 libexec/git-core/git-index-pack.exe
 libexec/git-core/git-init-db.exe
