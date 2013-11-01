@@ -46,6 +46,7 @@ bin/grep.exe
 bin/gunzip.exe
 bin/gzip.exe
 bin/head.exe
+bin/iconv.exe
 bin/id.exe
 bin/kill.exe
 bin/less.exe
@@ -57,7 +58,7 @@ bin/libcurl.dll
 bin/libexpat-0.dll
 bin/libgsasl-7.dll
 bin/libiconv-2.dll
-bin/libiconv2.dll
+bin/libintl-8.dll
 bin/libneon-25.dll
 bin/libpoppler-7.dll
 bin/libssl.dll
