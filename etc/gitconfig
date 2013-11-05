@@ -65,5 +65,5 @@
 	trustExitCode = false
 
 [remote "origin"]
-	fetch = +refs/heads/*:refs/remotes/origin/*
 	fetch = +refs/pull/*/head:refs/remotes/origin/pr/*
+	fetch = +refs/heads/*:refs/remotes/origin/*
