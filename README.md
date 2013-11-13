@@ -3,6 +3,7 @@ with [GitHub for Windows](http://windows.github.com/).
 
 # How to make changes
 
+0. Make sure you have `./` in your `$PATH`, probably via `~/.bashrc`
 1. Make your changes on the `devel` branch
 2. Run `msys.bat`
 3. Inside the bash shell, run `ghfw-release.sh`

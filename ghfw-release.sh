@@ -64,12 +64,14 @@ export GIT_DIR GIT_INDEX_FILE
 rm -f $GIT_INDEX_FILE
 
 cd /tmp/WinGit &&
+mv /.git/hooks/post-checkout /.git/hooks/post-checkout.nope &&
 git add . >/dev/null &&
 for file in .gitattributes .gitignore
 do
   git checkout PortableGit $file ||
   die "Couldn't check out $file from the PortableGit branch"
-done ||
+done &&
+mv /.git/hooks/post-checkout.nope /.git/hooks/post-checkout ||
 die "Failed to add files to index"
 
 DEVEL_COMMIT=$(git rev-parse HEAD)
