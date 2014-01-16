@@ -1,9 +1,9 @@
-## Introduction
+﻿## Introduction
 
 [git-tfs](http://git-tfs.com/) is a two-way bridge between TFS (Team Foundation Server) and git, similar to git-svn.
 It fetches TFS commits into a git repository, and lets you push your updates back to TFS.
 
-The most recent version is __0.17.2__. See the [change history](https://github.com/git-tfs/git-tfs/releases) for details.
+The most recent version is __0.19.2__. See the [change history](https://github.com/git-tfs/git-tfs/releases) for details.
 
 If you're having problems, check out the [troubleshooting](doc/TROUBLESHOOTING.md) page.
 And read [how to report an issue](doc/reporting-issues.md), before doing so ;)
@@ -72,7 +72,8 @@ You need .NET 4 and either the 2008, 2010 or 2012 version of Team Explorer insta
     # or shelve your changes :
     git tfs shelve MY_AWESOME_CHANGES
 
-
+You could find more interesting [use cases](doc/usecases/usecases.md) on how to use git-tfs.
+	
 git-tfs is designed to work outside of any existing TFS workspaces.
 
 ## Available commands / options
