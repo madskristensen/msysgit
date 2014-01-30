@@ -108,6 +108,6 @@ sed 's@/git/contrib/completion@/etc@g' \
 	< $MSYSGITROOT/etc/profile > etc/profile &&
 cp $MSYSGITROOT/share/resources/git.ico etc/ &&
 cp $MSYSGITROOT/share/resources/git.ico share/git-gui/lib/git-gui.ico &&
-cp $MSYSGITROOT/share/git-tfs/{*.dll,*.exe,*.config,*.xml} bin &&
+cp $MSYSGITROOT/share/git-tfs/{*.dll,*.exe,*.config} bin &&
 find bin libexec -iname \*.exe -o -iname \*.dll | sort > etc/fileList-bindimage.txt ||
 exit 1
