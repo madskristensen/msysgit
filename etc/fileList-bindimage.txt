@@ -1,10 +1,13 @@
-bin/GitTfs.Vs11.dll
 bin/GitTfs.Vs2008.dll
 bin/GitTfs.Vs2010.dll
+bin/GitTfs.Vs2012.dll
+bin/GitTfs.Vs2013.dll
 bin/GitTfs.VsFake.dll
 bin/LibGit2Sharp.dll
 bin/NDesk.Options.dll
 bin/StructureMap.dll
+bin/System.Net.Http.Formatting.dll
+bin/System.Web.Http.dll
 bin/antiword.exe
 bin/basename.exe
 bin/bash.exe
@@ -34,7 +37,6 @@ bin/git-tfs.exe
 bin/git-upload-archive.exe
 bin/git-upload-pack.exe
 bin/git.exe
-bin/git2.dll
 bin/gpg.exe
 bin/gpgkeys_curl.exe
 bin/gpgkeys_finger.exe
