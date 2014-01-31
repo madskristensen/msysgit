@@ -37,6 +37,7 @@ bin/git-tfs.exe
 bin/git-upload-archive.exe
 bin/git-upload-pack.exe
 bin/git.exe
+bin/git2-11f8336.dll
 bin/gpg.exe
 bin/gpgkeys_curl.exe
 bin/gpgkeys_finger.exe
