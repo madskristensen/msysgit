@@ -109,5 +109,6 @@ sed 's@/git/contrib/completion@/etc@g' \
 cp $MSYSGITROOT/share/resources/git.ico etc/ &&
 cp $MSYSGITROOT/share/resources/git.ico share/git-gui/lib/git-gui.ico &&
 cp $MSYSGITROOT/share/git-tfs/{*.dll,*.exe,*.config} bin &&
+cp $MSYSGITROOT/share/git-tfs/NativeBinaries/x86/*.dll bin &&
 find bin libexec -iname \*.exe -o -iname \*.dll | sort > etc/fileList-bindimage.txt ||
 exit 1
