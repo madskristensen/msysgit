@@ -23,7 +23,6 @@ bin/cut.exe
 bin/date.exe
 bin/diff.exe
 bin/dirname.exe
-bin/dos2unix.exe
 bin/du.exe
 bin/env.exe
 bin/expr.exe
@@ -48,6 +47,7 @@ bin/gpgv.exe
 bin/grep.exe
 bin/gunzip.exe
 bin/gzip.exe
+bin/hd2u.exe
 bin/head.exe
 bin/iconv.exe
 bin/id.exe
@@ -209,7 +209,6 @@ libexec/git-core/git-pack-objects.exe
 libexec/git-core/git-pack-redundant.exe
 libexec/git-core/git-pack-refs.exe
 libexec/git-core/git-patch-id.exe
-libexec/git-core/git-peek-remote.exe
 libexec/git-core/git-prune-packed.exe
 libexec/git-core/git-prune.exe
 libexec/git-core/git-push.exe
@@ -224,8 +223,8 @@ libexec/git-core/git-remote-http.exe
 libexec/git-core/git-remote-https.exe
 libexec/git-core/git-remote-testsvn.exe
 libexec/git-core/git-remote.exe
+libexec/git-core/git-repack.exe
 libexec/git-core/git-replace.exe
-libexec/git-core/git-repo-config.exe
 libexec/git-core/git-rerere.exe
 libexec/git-core/git-reset.exe
 libexec/git-core/git-rev-list.exe
@@ -244,7 +243,6 @@ libexec/git-core/git-status.exe
 libexec/git-core/git-stripspace.exe
 libexec/git-core/git-symbolic-ref.exe
 libexec/git-core/git-tag.exe
-libexec/git-core/git-tar-tree.exe
 libexec/git-core/git-unpack-file.exe
 libexec/git-core/git-unpack-objects.exe
 libexec/git-core/git-update-index.exe
