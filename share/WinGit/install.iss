@@ -172,25 +172,6 @@ Type: dirifempty; Name: {app}\home
 #include "putty.inc.iss"
 #include "modules.inc.iss"
 
-procedure DeleteFromVirtualStore;
-var
-    VirtualStore,FileName:String;
-    DriveChars:Integer;
-begin
-    VirtualStore:=AddBackslash(ExpandConstant('{localappdata}'))+'VirtualStore';
-    FileName:=ExpandConstant(CurrentFileName);
-    DriveChars:=Length(ExtractFileDrive(FileName));
-    if DriveChars>0 then begin
-        Delete(FileName,1,DriveChars);
-        FileName:=VirtualStore+FileName;
-        if FileExists(FileName) and (not DeleteFile(FileName)) then begin
-            Log('Line {#__LINE__}: Unable delete "'+FileName+'".');
-            // This is not a critical error, the user can probably fix it manually,
-            // so we continue.
-        end;
-    end;
-end;
-
 function CreateHardLink(lpFileName,lpExistingFileName:String;lpSecurityAttributes:Integer):Boolean;
 #ifdef UNICODE
 external 'CreateHardLinkW@Kernel32.dll stdcall delayload setuponly';
@@ -243,21 +224,28 @@ var
     ProcessesListBox:TListBox;
     ProcessesRefresh,ContinueButton:TButton;
 
+{
+    Specific helper functions
+}
+
 procedure BrowseForPuTTYFolder(Sender:TObject);
 var
     Name:String;
 begin
     if GetOpenFileName(
-        'Please select a Plink executable',
-        Name,
-        ExtractFilePath(EdtPlink.Text),
-        'Executable Files|*.exe',
-        'exe'
-    ) then begin
+        'Please select a Plink executable'
+    ,   Name
+    ,   ExtractFilePath(EdtPlink.Text)
+    ,   'Executable Files|*.exe'
+    ,   'exe'
+    )
+    then begin
         if IsPlinkExecutable(Name) then begin
             EdtPlink.Text:=Name;
             RdbSSH[GS_Plink].Checked:=True;
         end else begin
+            // This message box only gets triggered on interactive use, so it
+            // does not need to be suppressible for silent installations.
             MsgBox('{#PLINK_PATH_ERROR_MSG}',mbError,MB_OK);
         end;
     end;
@@ -289,10 +277,10 @@ begin
         if Pos(AppDir,Command)>0 then begin
             if not RegDeleteKeyIncludingSubkeys(RootKey,Keys[i]) then begin
                 Msg:='Line {#__LINE__}: Unable to remove "Git Bash / GUI Here" shell extension.';
-                MsgBox(Msg,mbError,MB_OK);
+
+                // This is not a critical error, so just notify the user and continue.
+                SuppressibleMsgBox(Msg,mbError,MB_OK,IDOK);
                 Log(Msg);
-                // This is not a critical error, the user can probably fix it manually,
-                // so we continue.
             end;
         end;
     end;
@@ -366,8 +354,56 @@ begin
     end;
 end;
 
+procedure SetAndMarkEnvString(Name,Value:String;Expandable:Boolean);
+var
+    Env:TArrayOfString;
+    FileName,Msg:String;
+begin
+    SetArrayLength(Env,1);
+    Env[0]:=Value;
+
+    // Try to set the variable as specified by the user.
+    if not SetEnvStrings(Name,Env,Expandable,IsAdminLoggedOn,True) then begin
+        Msg:='Line {#__LINE__}: Unable to set the '+Name+' environment variable.';
+
+        // This is not a critical error, so just notify the user and continue.
+        SuppressibleMsgBox(Msg,mbError,MB_OK,IDOK);
+        Log(Msg);
+    end else begin
+        // Mark that we have changed the variable by writing its value to a file.
+        FileName:=ExpandConstant('{app}')+'\setup.ini';
+        if not SetIniString('Environment',Name,Value,FileName) then begin
+            Msg:='Line {#__LINE__}: Unable to write to file "'+FileName+'".';
+
+            // This is not a critical error, so just notify the user and continue.
+            SuppressibleMsgBox(Msg,mbError,MB_OK,IDOK);
+            Log(Msg);
+        end;
+    end;
+end;
+
+procedure DeleteMarkedEnvString(Name:String);
+var
+   Env:TArrayOfString;
+   FileName,Msg:String;
+begin
+    Env:=GetEnvStrings(Name,IsAdminLoggedOn);
+    FileName:=ExpandConstant('{app}')+'\setup.ini';
+
+    if (GetArrayLength(Env)=1) and
+       (CompareStr(RemoveQuotes(Env[0]),GetIniString('Environment',Name,'',FileName))=0) then begin
+        if not SetEnvStrings(Name,[],False,IsAdminLoggedOn,True) then begin
+            Msg:='Line {#__LINE__}: Unable to delete the '+Name+' environment variable.';
+
+            // This is not a critical error, so just notify the user and continue.
+            SuppressibleMsgBox(Msg,mbError,MB_OK,IDOK);
+            Log(Msg);
+        end;
+    end;
+end;
+
 {
-    Installer code
+    Setup event functions
 }
 
 procedure InitializeWizard;
@@ -388,9 +424,9 @@ begin
      *)
 
     PathPage:=CreateCustomPage(
-        PrevPageID,
-        'Adjusting your PATH environment',
-        'How would you like to use Git from the command line?'
+        PrevPageID
+    ,   'Adjusting your PATH environment'
+    ,   'How would you like to use Git from the command line?'
     );
     PrevPageID:=PathPage.ID;
 
@@ -496,9 +532,9 @@ begin
 
     if RegGetSubkeyNames(HKEY_CURRENT_USER,'Software\SimonTatham\PuTTY\Sessions',PuTTYSessions) and (GetArrayLength(PuTTYSessions)>0) then begin
         PuTTYPage:=CreateCustomPage(
-            PrevPageID,
-            'Choosing the SSH executable',
-            'Which Secure Shell client program would you like Git to use?'
+            PrevPageID
+        ,   'Choosing the SSH executable'
+        ,   'Which Secure Shell client program would you like Git to use?'
         );
         PrevPageID:=PuTTYPage.ID;
 
@@ -602,9 +638,9 @@ begin
      *)
 
     CRLFPage:=CreateCustomPage(
-        PrevPageID,
-        'Configuring the line ending conversions',
-        'How should Git treat line endings in text files?'
+        PrevPageID
+    ,   'Configuring the line ending conversions'
+    ,   'How should Git treat line endings in text files?'
     );
     PrevPageID:=CRLFPage.ID;
 
@@ -701,9 +737,9 @@ begin
      *)
 
     ProcessesPage:=CreateCustomPage(
-        wpPreparing,
-        'Replacing in-use files',
-        'The following applications use files that need to be replaced, please close them.'
+        wpPreparing
+    ,   'Replacing in-use files'
+    ,   'The following applications use files that need to be replaced, please close them.'
     );
 
     ProcessesListBox:=TListBox.Create(ProcessesPage);
@@ -768,15 +804,18 @@ var
     i:Integer;
     Version:TWindowsVersion;
 begin
+    // On a silent install, if your NextButtonClick function returns False
+    // prior to installation starting, Setup will exit automatically.
     Result:=True;
 
     if CurPageID=wpSelectDir then begin
         if not IsDirWritable(WizardDirValue) then begin
-            MsgBox(
+            SuppressibleMsgBox(
                 'The specified installation directory does not seem to be writable. ' +
             +   'Please choose another directory or restart setup as a user with sufficient permissions.'
             ,   mbCriticalError
             ,   MB_OK
+            ,   IDOK
             );
             Result:=False;
             Exit;
@@ -787,14 +826,19 @@ begin
         Result:=RdbSSH[GS_OpenSSH].Checked or
             (RdbSSH[GS_Plink].Checked and FileExists(EdtPlink.Text));
         if not Result then begin
-            MsgBox('{#PLINK_PATH_ERROR_MSG}',mbError,MB_OK);
+            SuppressibleMsgBox('{#PLINK_PATH_ERROR_MSG}',mbError,MB_OK,IDOK);
         end;
     end else if (ProcessesPage<>NIL) and (CurPageID=ProcessesPage.ID) then begin
         // It would have been nicer to just disable the "Next" button, but the
         // WizardForm exports the button just read-only.
         for i:=0 to GetArrayLength(Processes)-1 do begin
             if not Processes[i].Restartable then begin
-                MsgBox('Setup cannot continue until you close at least those applications in the list that are marked as "closing is required".',mbCriticalError,MB_OK);
+                SuppressibleMsgBox(
+                    'Setup cannot continue until you close at least those applications in the list that are marked as "closing is required".'
+                ,   mbCriticalError
+                ,   MB_OK
+                ,   IDOK
+                );
                 Result:=False;
                 Exit;
             end;
@@ -805,18 +849,20 @@ begin
         if not Result then begin
             GetWindowsVersionEx(Version);
             if Version.Major>=6 then begin
-                Result:=(MsgBox(
+                Result:=(SuppressibleMsgBox(
                     'If you continue without closing the listed applications they will be closed and restarted automatically.' + #13 + #13 +
-                    'Are you sure you want to continue?',
-                    mbConfirmation,
-                    MB_YESNO
+                    'Are you sure you want to continue?'
+                ,   mbConfirmation
+                ,   MB_YESNO
+                ,   IDNO
                 )=IDYES);
             end else begin
-                Result:=(MsgBox(
+                Result:=(SuppressibleMsgBox(
                     'If you continue without closing the listed applications you will need to log off and on again before changes take effect.' + #13 + #13 +
-                    'Are you sure you want to continue anyway?',
-                    mbConfirmation,
-                    MB_YESNO
+                    'Are you sure you want to continue anyway?'
+                ,   mbConfirmation
+                ,   MB_YESNO
+                ,   IDNO
                 )=IDYES);
             end;
         end;
@@ -826,7 +872,7 @@ end;
 procedure CurStepChanged(CurStep:TSetupStep);
 var
     AppDir,DllPath,FileName,TempName,Cmd,Msg:String;
-    BuiltIns,ImageNames,EnvPath,EnvHome,EnvSSH:TArrayOfString;
+    BuiltIns,ImageNames,EnvPath,EnvHome:TArrayOfString;
     Count,i:Longint;
     LinkCreated:Boolean;
     FindRec:TFindRec;
@@ -931,10 +977,11 @@ begin
         end;
     end else begin
         Msg:='Line {#__LINE__}: Unable to read file "{#APP_BUILTINS}".';
-        MsgBox(Msg,mbError,MB_OK);
+
+        // This is in fact a critical error, but "Abort" does not work during ssPostInstall anymore and
+        // we have no other way of aborting the installation, so just notify the user and continue.
+        SuppressibleMsgBox(Msg,mbError,MB_OK,IDOK);
         Log(Msg);
-        // This is not a critical error, Git could basically be used without the
-        // aliases for built-ins, so we continue.
     end;
 
     {
@@ -951,10 +998,10 @@ begin
     if not Exec(AppDir + '\bin\git.exe', 'config -f gitconfig ' + Cmd,
                 AppDir + '\etc', SW_HIDE, ewWaitUntilTerminated, i) then begin
         Msg:='Unable to configure the line ending conversion: ' + Cmd;
-        MsgBox(Msg,mbError,MB_OK);
+
+        // This is not a critical error, so just notify the user and continue.
+        SuppressibleMsgBox(Msg,mbError,MB_OK,IDOK);
         Log(Msg);
-        // This is not a critical error, the user can probably fix it manually,
-        // so we continue.
     end;
 
     {
@@ -964,71 +1011,13 @@ begin
         "ChangesEnvironment=yes" not happend before the change!
     }
 
-    FileName:=AppDir+'\setup.ini';
-
     // Delete GIT_SSH and SVN_SSH if a previous installation set them (this is required for the GS_OpenSSH case).
-    EnvSSH:=GetEnvStrings('GIT_SSH',IsAdminLoggedOn);
-    if (GetArrayLength(EnvSSH)=1) and
-       (CompareStr(RemoveQuotes(EnvSSH[0]),GetIniString('Environment','GIT_SSH','',FileName))=0) then begin
-        if not SetEnvStrings('GIT_SSH',IsAdminLoggedOn,True,[]) then begin
-            Msg:='Line {#__LINE__}: Unable to reset GIT_SSH prior to install.';
-            MsgBox(Msg,mbError,MB_OK);
-            Log(Msg);
-            // This is not a critical error, the user can probably fix it manually,
-            // so we continue.
-        end;
-    end;
-
-    EnvSSH:=GetEnvStrings('SVN_SSH',IsAdminLoggedOn);
-    if (GetArrayLength(EnvSSH)=1) and
-       (CompareStr(RemoveQuotes(EnvSSH[0]),GetIniString('Environment','SVN_SSH','',FileName))=0) then begin
-        if not SetEnvStrings('SVN_SSH',IsAdminLoggedOn,True,[]) then begin
-            Msg:='Line {#__LINE__}: Unable to reset SVN_SSH prior to install.';
-            MsgBox(Msg,mbError,MB_OK);
-            Log(Msg);
-            // This is not a critical error, the user can probably fix it manually,
-            // so we continue.
-        end;
-    end;
+    DeleteMarkedEnvString('GIT_SSH');
+    DeleteMarkedEnvString('SVN_SSH');
 
     if (PuTTYPage<>NIL) and RdbSSH[GS_Plink].Checked then begin
-        SetArrayLength(EnvSSH,1);
-        EnvSSH[0]:=EdtPlink.Text;
-
-        // Set GIT_SSH as specified by the user.
-        if not SetEnvStrings('GIT_SSH',IsAdminLoggedOn,True,EnvSSH) then begin
-            Msg:='Line {#__LINE__}: Unable to set the GIT_SSH environment variable.';
-            MsgBox(Msg,mbError,MB_OK);
-            Log(Msg);
-            // This is not a critical error, the user can probably fix it manually,
-            // so we continue.
-        end;
-
-        // Mark that we have changed GIT_SSH by writing its value to a file.
-        if not SetIniString('Environment','GIT_SSH',EnvSSH[0],FileName) then begin
-            Msg:='Line {#__LINE__}: Unable to write to file "'+FileName+'".';
-            MsgBox(Msg,mbError,MB_OK);
-            Log(Msg);
-            // This is not a critical error, though uninstall / reinstall will probably not run cleanly,
-            // so we continue.
-        end;
-
-        if not SetEnvStrings('SVN_SSH',IsAdminLoggedOn,True,EnvSSH) then begin
-            Msg:='Line {#__LINE__}: Unable to set the SVN_SSH environment variable.';
-            MsgBox(Msg,mbError,MB_OK);
-            Log(Msg);
-            // This is not a critical error, the user can probably fix it manually,
-            // so we continue.
-        end;
-
-        // Mark that we have changed SVN_SSH by writing its value to a file.
-        if not SetIniString('Environment','SVN_SSH',EnvSSH[0],FileName) then begin
-            Msg:='Line {#__LINE__}: Unable to write to file "'+FileName+'".';
-            MsgBox(Msg,mbError,MB_OK);
-            Log(Msg);
-            // This is not a critical error, though uninstall / reinstall will probably not run cleanly,
-            // so we continue.
-        end;
+        SetAndMarkEnvString('GIT_SSH',EdtPlink.Text,True);
+        SetAndMarkEnvString('SVN_SSH',EdtPlink.Text,True);
     end;
 
     // Get the current user's directories in PATH.
@@ -1038,19 +1027,6 @@ begin
     for i:=0 to GetArrayLength(EnvPath)-1 do begin
         if Pos(AppDir+'\',EnvPath[i]+'\')=1 then begin
             EnvPath[i]:='';
-        end;
-    end;
-
-    // Delete HOME if a previous installation modified it.
-    EnvHome:=GetEnvStrings('HOME',IsAdminLoggedOn);
-    if (GetArrayLength(EnvHome)=1) and
-       (CompareStr(RemoveQuotes(EnvHome[0]),GetIniString('Environment','HOME','',FileName))=0) then begin
-        if not SetEnvStrings('HOME',IsAdminLoggedOn,True,[]) then begin
-            Msg:='Line {#__LINE__}: Unable to reset HOME prior to install.';
-            MsgBox(Msg,mbError,MB_OK);
-            Log(Msg);
-            // This is not a critical error, the user can probably fix it manually,
-            // so we continue.
         end;
     end;
 
@@ -1066,40 +1042,16 @@ begin
         if RdbPath[GP_CmdTools].Checked then begin
             SetArrayLength(EnvPath,i+2);
             EnvPath[i+1]:=AppDir+'\bin';
-
-            // Set HOME for the Windows Command Prompt, but only if it has not been set manually before.
-            EnvHome:=GetEnvStrings('HOME',IsAdminLoggedOn);
-            i:=GetArrayLength(EnvHome);
-            if (i=0) or ((i=1) and (Length(EnvHome[0])=0)) then begin
-                SetArrayLength(EnvHome,1);
-                EnvHome[0]:=ExpandConstant('{%HOMEDRIVE}{%HOMEPATH}');
-                if not SetEnvStrings('HOME',IsAdminLoggedOn,True,EnvHome) then begin
-                    Msg:='Line {#__LINE__}: Unable to set the HOME environment variable.';
-                    MsgBox(Msg,mbError,MB_OK);
-                    Log(Msg);
-                    // This is not a critical error, the user can probably fix it manually,
-                    // so we continue.
-                end;
-
-                // Mark that we have changed HOME.
-                if not SetIniString('Environment','HOME',EnvHome[0],FileName) then begin
-                    Msg:='Line {#__LINE__}: Unable to write to file "'+FileName+'".';
-                    MsgBox(Msg,mbError,MB_OK);
-                    Log(Msg);
-                    // This is not a critical error, though uninstall / reinstall will probably not run cleanly,
-                    // so we continue.
-                end;
-            end;
         end;
     end;
 
     // Set the current user's PATH directories.
-    if not SetEnvStrings('PATH',IsAdminLoggedOn,True,EnvPath) then begin
+    if not SetEnvStrings('PATH',EnvPath,True,IsAdminLoggedOn,True) then begin
         Msg:='Line {#__LINE__}: Unable to set the PATH environment variable.';
-        MsgBox(Msg,mbError,MB_OK);
+
+        // This is not a critical error, so just notify the user and continue.
+        SuppressibleMsgBox(Msg,mbError,MB_OK,IDOK);
         Log(Msg);
-        // This is not a critical error, the user can probably fix it manually,
-        // so we continue.
     end;
 
     {
@@ -1128,6 +1080,7 @@ begin
         ,   SW_SHOWNORMAL
         );
     end;
+
     if IsComponentSelected('icons\desktop') then begin
         CreateShellLink(
             GetShellFolder('desktop')+'\Git Bash.lnk'
@@ -1140,20 +1093,6 @@ begin
         ,   SW_SHOWNORMAL
         );
     end;
-
-    // Create a special shortcut that does not set a working directory (Note: Since Inno Setup 5.3.11,
-    // passing an empty WorkingDir gets replaced with {sys}, so use '.' instead).
-    // This shortcut is used by "Git Bash.vbs", which in turn is run by the "Git Bash Here" shell extension.
-    CreateShellLink(
-        AppDir+'\Git Bash.lnk'
-    ,   'Git Bash'
-    ,   Cmd
-    ,   TempName
-    ,   '.'
-    ,   FileName
-    ,   0
-    ,   SW_SHOWNORMAL
-    );
 
     {
         Create the Windows Explorer integrations
@@ -1172,12 +1111,13 @@ begin
            (not RegWriteStringValue(RootKey,'SOFTWARE\Classes\Directory\shell\git_shell\command','',Cmd)) or
            (StringChangeEx(Cmd,'%1','%v',false)<>1) or
            (not RegWriteStringValue(RootKey,'SOFTWARE\Classes\Directory\Background\shell\git_shell','',Msg)) or
-           (not RegWriteStringValue(RootKey,'SOFTWARE\Classes\Directory\Background\shell\git_shell\command','',Cmd)) then begin
+           (not RegWriteStringValue(RootKey,'SOFTWARE\Classes\Directory\Background\shell\git_shell\command','',Cmd)) then
+        begin
             Msg:='Line {#__LINE__}: Unable to create "Git Bash Here" shell extension.';
-            MsgBox(Msg,mbError,MB_OK);
+
+            // This is not a critical error, so just notify the user and continue.
+            SuppressibleMsgBox(Msg,mbError,MB_OK,IDOK);
             Log(Msg);
-            // This is not a critical error, the user can probably fix it manually,
-            // so we continue.
         end;
     end;
 
@@ -1188,12 +1128,13 @@ begin
            (not RegWriteStringValue(RootKey,'SOFTWARE\Classes\Directory\shell\git_gui\command','',Cmd)) or
            (StringChangeEx(Cmd,'%1','%v',false)<>1) or
            (not RegWriteStringValue(RootKey,'SOFTWARE\Classes\Directory\Background\shell\git_gui','',Msg)) or
-           (not RegWriteStringValue(RootKey,'SOFTWARE\Classes\Directory\Background\shell\git_gui\command','',Cmd)) then begin
+           (not RegWriteStringValue(RootKey,'SOFTWARE\Classes\Directory\Background\shell\git_gui\command','',Cmd))
+        then begin
             Msg:='Line {#__LINE__}: Unable to create "Git GUI Here" shell extension.';
-            MsgBox(Msg,mbError,MB_OK);
+
+            // This is not a critical error, so just notify the user and continue.
+            SuppressibleMsgBox(Msg,mbError,MB_OK,IDOK);
             Log(Msg);
-            // This is not a critical error, the user can probably fix it manually,
-            // so we continue.
         end;
     end;
 
@@ -1206,7 +1147,10 @@ begin
         end else begin
             FileName:=AppDir+'\git-cheetah\git_shell_ext.dll';
         end;
-        if not ReplaceInUseFile(FileName,FileName+'.new',True) then begin
+        if not ReplaceInUseFile(FileName,FileName+'.new',True,Msg) then begin
+            // This is in fact a critical error, but "Abort" does not work during ssPostInstall anymore and
+            // we have no other way of aborting the installation, so just notify the user and continue.
+            SuppressibleMsgBox(Msg,mbError,MB_OK,IDOK);
             Log('Line {#__LINE__}: Replacing file "'+FileName+'" failed.');
         end;
     end;
@@ -1261,7 +1205,7 @@ begin
 end;
 
 {
-    Uninstaller code
+    Uninstall event functions
 }
 
 function InitializeUninstall:Boolean;
@@ -1342,11 +1286,12 @@ begin
 
             // Note: The number of processes might have changed during a refresh.
             if Result and (GetArrayLength(Processes)>0) then begin
-                Result:=(MsgBox(
+                Result:=(SuppressibleMsgBox(
                     'If you continue without closing the listed applications, you will need to log off and on again to remove some files manually.' + #13 + #13 +
-                    'Are you sure you want to continue anyway?',
-                    mbConfirmation,
-                    MB_YESNO
+                    'Are you sure you want to continue anyway?'
+                ,   mbConfirmation
+                ,   MB_YESNO
+                ,   IDNO
                 )=IDYES);
             end;
         end;
@@ -1364,7 +1309,7 @@ end;
 procedure CurUninstallStepChanged(CurUninstallStep:TUninstallStep);
 var
     AppDir,FileName,Msg:String;
-    EnvPath,EnvHome,EnvSSH:TArrayOfString;
+    EnvPath:TArrayOfString;
     i:Longint;
 begin
     if CurUninstallStep<>usUninstall then begin
@@ -1373,7 +1318,7 @@ begin
 
     // Reset the console font (the FontType is reset in the Registry section).
     if IsComponentInstalled('consolefont') then begin
-        if MsgBox('Do you want to revert the TrueType font setting for all console windows?',mbConfirmation,MB_YESNO)=IDYES then begin
+        if SuppressibleMsgBox('Do you want to revert the TrueType font setting for all console windows?',mbConfirmation,MB_YESNO,IDYES)=IDYES then begin
             RegWriteDWordValue(HKEY_CURRENT_USER,'Console','FontFamily',0);
             RegWriteDWordValue(HKEY_CURRENT_USER,'Console','FontSize',0);
             RegWriteDWordValue(HKEY_CURRENT_USER,'Console','FontWeight',0);
@@ -1391,29 +1336,8 @@ begin
     FileName:=AppDir+'\setup.ini';
 
     // Delete the current user's GIT_SSH and SVN_SSH if we set it.
-    EnvSSH:=GetEnvStrings('GIT_SSH',IsAdminLoggedOn);
-    if (GetArrayLength(EnvSSH)=1) and
-       (CompareStr(RemoveQuotes(EnvSSH[0]),GetIniString('Environment','GIT_SSH','',FileName))=0) then begin
-        if not SetEnvStrings('GIT_SSH',IsAdminLoggedOn,True,[]) then begin
-            Msg:='Line {#__LINE__}: Unable to revert any possible changes to GIT_SSH.';
-            MsgBox(Msg,mbError,MB_OK);
-            Log(Msg);
-            // This is not a critical error, the user can probably fix it manually,
-            // so we continue.
-        end;
-    end;
-
-    EnvSSH:=GetEnvStrings('SVN_SSH',IsAdminLoggedOn);
-    if (GetArrayLength(EnvSSH)=1) and
-       (CompareStr(RemoveQuotes(EnvSSH[0]),GetIniString('Environment','SVN_SSH','',FileName))=0) then begin
-        if not SetEnvStrings('SVN_SSH',IsAdminLoggedOn,True,[]) then begin
-            Msg:='Line {#__LINE__}: Unable to revert any possible changes to SVN_SSH.';
-            MsgBox(Msg,mbError,MB_OK);
-            Log(Msg);
-            // This is not a critical error, the user can probably fix it manually,
-            // so we continue.
-        end;
-    end;
+    DeleteMarkedEnvString('GIT_SSH');
+    DeleteMarkedEnvString('SVN_SSH');
 
     // Get the current user's directories in PATH.
     EnvPath:=GetEnvStrings('PATH',IsAdminLoggedOn);
@@ -1427,33 +1351,20 @@ begin
     end;
 
     // Reset the current user's directories in PATH.
-    if not SetEnvStrings('PATH',IsAdminLoggedOn,True,EnvPath) then begin
+    if not SetEnvStrings('PATH',EnvPath,True,IsAdminLoggedOn,True) then begin
         Msg:='Line {#__LINE__}: Unable to revert any possible changes to PATH.';
-        MsgBox(Msg,mbError,MB_OK);
-        Log(Msg);
-        // This is not a critical error, the user can probably fix it manually,
-        // so we continue.
-    end;
 
-    // Reset the current user's HOME if we modified it.
-    EnvHome:=GetEnvStrings('HOME',IsAdminLoggedOn);
-    if (GetArrayLength(EnvHome)=1) and
-       (CompareStr(RemoveQuotes(EnvHome[0]),GetIniString('Environment','HOME','',FileName))=0) then begin
-        if not SetEnvStrings('HOME',IsAdminLoggedOn,True,[]) then begin
-            Msg:='Line {#__LINE__}: Unable to revert any possible changes to HOME.';
-            MsgBox(Msg,mbError,MB_OK);
-            Log(Msg);
-            // This is not a critical error, the user can probably fix it manually,
-            // so we continue.
-        end;
+        // This is not a critical error, so just notify the user and continue.
+        SuppressibleMsgBox(Msg,mbError,MB_OK,IDOK);
+        Log(Msg);
     end;
 
     if FileExists(FileName) and (not DeleteFile(FileName)) then begin
         Msg:='Line {#__LINE__}: Unable to delete file "'+FileName+'".';
-        MsgBox(Msg,mbError,MB_OK);
+
+        // This is not a critical error, so just notify the user and continue.
+        SuppressibleMsgBox(Msg,mbError,MB_OK,IDOK);
         Log(Msg);
-        // This is not a critical error, the user can probably fix it manually,
-        // so we continue.
     end;
 
     {
@@ -1470,13 +1381,17 @@ begin
     if FileExists(FileName) then begin
         if not UnregisterServer(Is64BitInstallMode,FileName,False) then begin
             Msg:='Line {#__LINE__}: Unable to unregister file "'+FileName+'". Please do it manually by running "regsvr32 /u '+ExtractFileName(FileName)+'".';
-            MsgBox(Msg,mbError,MB_OK);
+
+            // This is not a critical error, so just notify the user and continue.
+            SuppressibleMsgBox(Msg,mbError,MB_OK,IDOK);
             Log(Msg);
         end;
 
         if not DeleteFile(FileName) then begin
             Msg:='Line {#__LINE__}: Unable to delete file "'+FileName+'". Please do it manually after logging off and on again.';
-            MsgBox(Msg,mbError,MB_OK);
+
+            // This is not a critical error, so just notify the user and continue.
+            SuppressibleMsgBox(Msg,mbError,MB_OK,IDOK);
             Log(Msg);
         end;
     end;
