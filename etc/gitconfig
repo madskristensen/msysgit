@@ -41,9 +41,6 @@
 [rebase]
 	autosquash = true
 
-[rerere]
-	enabled = true
-
 [credential]
 	helper = !github --credentials
 
@@ -55,7 +52,7 @@
 	default = upstream
 
 [diff]
-	tool = vs12
+	tool = vs2013
 	algorithm = histogram
 
 [difftool]
@@ -64,7 +61,9 @@
 	cmd = \"c:/program files (x86)/beyond compare 3/bcomp.exe\" \"$LOCAL\" \"$REMOTE\"
 [difftool "p4"]
 	cmd = \"c:/program files/Perforce/p4merge.exe\" \"$LOCAL\" \"$REMOTE\"
-[difftool "vs12"]
+[difftool "vs2012"]
+	cmd = \"c:/program files (x86)/microsoft visual studio 11.0/common7/ide/devenv.exe\" '//diff' \"$LOCAL\" \"$REMOTE\"
+[difftool "vs2013"]
 	cmd = \"c:/program files (x86)/microsoft visual studio 12.0/common7/ide/devenv.exe\" '//diff' \"$LOCAL\" \"$REMOTE\"
 
 [merge]
