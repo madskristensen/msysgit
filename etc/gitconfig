@@ -1,3 +1,16 @@
+[alias]
+	c = commit
+	co = checkout
+	dt = difftool
+	mt = mergetool
+	praise = blame
+	ff = merge --ff-only
+	st = status
+	sync = !git pull && git push
+
+[apply]
+	whitespace = nowarn
+
 [core]
 	symlinks = false
 	autocrlf = true
@@ -36,23 +49,24 @@
 [filter "ghcleansmudge"]
         clean = cat
         smudge = cat
+
 [push]
 	default = upstream
 
-[alias]
-	dt = difftool
-	mt = mergetool
-
 [diff]
-	tool = vs11
+	tool = vs2013
+	algorithm = histogram
+
 [difftool]
 	prompt = false
 [difftool "bc4"]
 	cmd = \"c:/program files (x86)/beyond compare 3/bcomp.exe\" \"$LOCAL\" \"$REMOTE\"
 [difftool "p4"]
 	cmd = \"c:/program files/Perforce/p4merge.exe\" \"$LOCAL\" \"$REMOTE\"
-[difftool "vs11"]
+[difftool "vs2012"]
 	cmd = \"c:/program files (x86)/microsoft visual studio 11.0/common7/ide/devenv.exe\" '//diff' \"$LOCAL\" \"$REMOTE\"
+[difftool "vs2013"]
+	cmd = \"c:/program files (x86)/microsoft visual studio 12.0/common7/ide/devenv.exe\" '//diff' \"$LOCAL\" \"$REMOTE\"
 
 [merge]
 	tool = bc3
