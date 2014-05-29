@@ -1,6 +1,8 @@
 This is the copy of [msysGit](https://github.com/msysgit/msysgit) that ships
 with [GitHub for Windows](http://windows.github.com/).
 
+This is the build environment -- also known as msysGit -- for [Git for Windows](http://msysgit.github.io/).
+
 # How to make changes
 
 0. Make sure you have `./` in your `$PATH`, probably via `~/.bashrc`

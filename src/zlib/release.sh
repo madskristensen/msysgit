@@ -2,7 +2,7 @@
 
 cd "$(dirname "$0")"
 
-VERSION=1.2.7
+VERSION=1.2.8
 DIR=zlib-$VERSION
 URL=http://zlib.net/$DIR.tar.gz
 FILE=${URL##*/}
@@ -21,7 +21,7 @@ test -d $DIR || {
 		cd $DIR &&
 		git init &&
 		git add . &&
-		git commit -m "Import of $FILE"
+		git commit -n -m "Import of $FILE"
 	)
 } || die "Could not check out $FILE"
 
