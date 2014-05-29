@@ -1398,8 +1398,8 @@ Double quote <tt>"</tt> and backslash <tt>\</tt> characters in variable values m
 be escaped: use <tt>\"</tt> for <tt>"</tt> and <tt>\\</tt> for <tt>\</tt>.</p></div>
 <div class="paragraph"><p>The following escape sequences (beside <tt>\"</tt> and <tt>\\</tt>) are recognized:
 <tt>\n</tt> for newline character (NL), <tt>\t</tt> for horizontal tabulation (HT, TAB)
-and <tt>\b</tt> for backspace (BS).  No other char escape sequence, nor octal
-char sequences are valid.</p></div>
+and <tt>\b</tt> for backspace (BS).  Other char escape sequences (including octal
+escape sequences) are invalid.</p></div>
 <div class="paragraph"><p>Variable values ending in a <tt>\</tt> are continued on the next line in the
 customary UNIX fashion.</p></div>
 <div class="paragraph"><p>Some variables may require a special value format.</p></div>
@@ -1457,8 +1457,11 @@ user&#8217;s home directory. See below for examples.</p></div>
 <h3 id="_variables">Variables</h3>
 <div class="paragraph"><p>Note that this list is non-comprehensive and not necessarily complete.
 For command-specific variables, you will find a more detailed description
-in the appropriate manual page. You will find a description of non-core
-porcelain configuration variables in the respective porcelain documentation.</p></div>
+in the appropriate manual page.</p></div>
+<div class="paragraph"><p>Other git-related tools may and do use their own variables.  When
+inventing new variables for use in your own tool, make sure their
+names do not conflict with those that are used by Git itself and
+other popular tools, and describe them in your documentation.</p></div>
 <div class="dlist"><dl>
 <dt class="hdlist1">
 advice.*
@@ -1478,7 +1481,7 @@ pushUpdateRejected
 <dd>
 <p>
                 Set this variable to <em>false</em> if you want to disable
-                <em>pushNonFFCurrent</em>, <em>pushNonFFDefault</em>,
+                <em>pushNonFFCurrent</em>,
                 <em>pushNonFFMatching</em>, <em>pushAlreadyExists</em>,
                 <em>pushFetchFirst</em>, and <em>pushNeedsForce</em>
                 simultaneously.
@@ -1491,18 +1494,6 @@ pushNonFFCurrent
 <p>
                 Advice shown when <a href="git-push.html">git-push(1)</a> fails due to a
                 non-fast-forward update to the current branch.
-</p>
-</dd>
-<dt class="hdlist1">
-pushNonFFDefault
-</dt>
-<dd>
-<p>
-                Advice to set <em>push.default</em> to <em>upstream</em> or <em>current</em>
-                when you ran <a href="git-push.html">git-push(1)</a> and pushed <em>matching
-                refs</em> by default (i.e. you did not provide an explicit
-                refspec, and no <em>push.default</em> configuration was set)
-                and it resulted in a non-fast-forward error.
 </p>
 </dd>
 <dt class="hdlist1">
@@ -2545,7 +2536,7 @@ color.diff
         commands will only use color when output is to the terminal.
         Defaults to false.
 </p>
-<div class="paragraph"><p>This does not affect <a href="git-format-patch.html">git-format-patch(1)</a> nor the
+<div class="paragraph"><p>This does not affect <a href="git-format-patch.html">git-format-patch(1)</a> or the
 <em>git-diff-&#42;</em> plumbing commands.  Can be overridden on the
 command line with the <tt>--color[=&lt;when&gt;]</tt> option.</p></div>
 </dd>
@@ -2887,6 +2878,18 @@ commit.cleanup
         would do <tt>git config commit.cleanup whitespace</tt> (note that you will
         have to remove the help lines that begin with <tt>#</tt> in the commit log
         template yourself, if you do this).
+</p>
+</dd>
+<dt class="hdlist1">
+commit.gpgsign
+</dt>
+<dd>
+<p>
+        A boolean to specify whether all commits should be GPG signed.
+        Use of this option when doing operations such as rebase can
+        result in a large number of commits being signed. It may be
+        convenient to use an agent to avoid typing your GPG passphrase
+        several times.
 </p>
 </dd>
 <dt class="hdlist1">
@@ -3655,6 +3658,16 @@ filter.&lt;driver&gt;.smudge
 </p>
 </dd>
 <dt class="hdlist1">
+gc.aggressiveDepth
+</dt>
+<dd>
+<p>
+        The depth parameter used in the delta compression
+        algorithm used by <em>git gc --aggressive</em>.  This defaults
+        to 250.
+</p>
+</dd>
+<dt class="hdlist1">
 gc.aggressiveWindow
 </dt>
 <dd>
@@ -3685,6 +3698,15 @@ gc.autopacklimit
         marked with <tt>*.keep</tt> file in the repository, <tt>git gc
         --auto</tt> consolidates them into one larger pack.  The
         default value is 50.  Setting this to 0 disables it.
+</p>
+</dd>
+<dt class="hdlist1">
+gc.autodetach
+</dt>
+<dd>
+<p>
+        Make <tt>git gc --auto</tt> return immediately andrun in background
+        if the system supports it. Default is true.
 </p>
 </dd>
 <dt class="hdlist1">
@@ -4495,6 +4517,15 @@ imap
 </p>
 </dd>
 <dt class="hdlist1">
+index.version
+</dt>
+<dd>
+<p>
+        Specify the version with which new index files should be
+        initialized.  This does not affect existing repositories.
+</p>
+</dd>
+<dt class="hdlist1">
 init.templatedir
 </dt>
 <dd>
@@ -4560,7 +4591,7 @@ interactive.singlekey
         <a href="git-add.html">git-add(1)</a>, <a href="git-checkout.html">git-checkout(1)</a>, <a href="git-commit.html">git-commit(1)</a>,
         <a href="git-reset.html">git-reset(1)</a>, and <a href="git-stash.html">git-stash(1)</a>. Note that this
         setting is silently ignored if portable keystroke input
-        is not available.
+        is not available; requires the Perl module Term::ReadKey.
 </p>
 </dd>
 <dt class="hdlist1">
@@ -5164,6 +5195,46 @@ pack.packSizeLimit
 </p>
 </dd>
 <dt class="hdlist1">
+pack.useBitmaps
+</dt>
+<dd>
+<p>
+        When true, git will use pack bitmaps (if available) when packing
+        to stdout (e.g., during the server side of a fetch). Defaults to
+        true. You should not generally need to turn this off unless
+        you are debugging pack bitmaps.
+</p>
+</dd>
+<dt class="hdlist1">
+pack.writebitmaps
+</dt>
+<dd>
+<p>
+        When true, git will write a bitmap index when packing all
+        objects to disk (e.g., when <tt>git repack -a</tt> is run).  This
+        index can speed up the "counting objects" phase of subsequent
+        packs created for clones and fetches, at the cost of some disk
+        space and extra time spent on the initial repack.  Defaults to
+        false.
+</p>
+</dd>
+<dt class="hdlist1">
+pack.writeBitmapHashCache
+</dt>
+<dd>
+<p>
+        When true, git will include a "hash cache" section in the bitmap
+        index (if one is written). This cache can be used to feed git&#8217;s
+        delta heuristics, potentially leading to better deltas between
+        bitmapped and non-bitmapped objects (e.g., when serving a fetch
+        between an older, bitmapped pack and objects that have been
+        pushed since the last gc). The downside is that it consumes 4
+        bytes per object of disk space, and that JGit&#8217;s bitmap
+        implementation does not understand it, causing it to complain if
+        Git and JGit are used on the same repository. Defaults to false.
+</p>
+</dd>
+<dt class="hdlist1">
 pager.&lt;cmd&gt;
 </dt>
 <dd>
@@ -5190,6 +5261,21 @@ pretty.&lt;name&gt;
         to be equivalent to running <tt>git log "--pretty=format:* %H %s"</tt>.
         Note that an alias with the same name as a built-in format
         will be silently ignored.
+</p>
+</dd>
+<dt class="hdlist1">
+pull.ff
+</dt>
+<dd>
+<p>
+        By default, Git does not create an extra merge commit when merging
+        a commit that is a descendant of the current commit. Instead, the
+        tip of the current branch is fast-forwarded. When set to <tt>false</tt>,
+        this variable tells Git to create an extra merge commit in such
+        a case (equivalent to giving the <tt>--no-ff</tt> option from the command
+        line). When set to <tt>only</tt>, only such fast-forward merges are
+        allowed (equivalent to giving the <tt>--ff-only</tt> option from the
+        command line).
 </p>
 </dd>
 <dt class="hdlist1">
@@ -5275,7 +5361,7 @@ push.default
 <div class="paragraph"><p>When pushing to a remote that is different from the remote you normally
 pull from, work as <tt>current</tt>.  This is the safest option and is suited
 for beginners.</p></div>
-<div class="paragraph"><p>This mode will become the default in Git 2.0.</p></div>
+<div class="paragraph"><p>This mode has become the default in Git 2.0.</p></div>
 </li>
 <li>
 <p>
@@ -5295,8 +5381,8 @@ unfinished, this mode is not for you.  Also this mode is not
 suitable for pushing into a shared central repository, as other
 people may add new branches there, or update the tip of existing
 branches outside your control.</p></div>
-<div class="paragraph"><p>This is currently the default, but Git 2.0 will change the default
-to <tt>simple</tt>.</p></div>
+<div class="paragraph"><p>This used to be the default, but not since Git 2.0 (<tt>simple</tt> is the
+new default).</p></div>
 </li>
 </ul></div>
 </div></div>
@@ -5598,6 +5684,18 @@ repack.usedeltabaseoffset
         protocol such as http, then you need to set this option to
         "false" and repack. Access from old Git versions over the
         native protocol are unaffected by this option.
+</p>
+</dd>
+<dt class="hdlist1">
+repack.packKeptObjects
+</dt>
+<dd>
+<p>
+        If set to true, makes <tt>git repack</tt> act as if
+        <tt>--pack-kept-objects</tt> was passed. See <a href="git-repack.html">git-repack(1)</a> for
+        details. Defaults to <tt>false</tt> normally, but <tt>true</tt> if a bitmap
+        index is being written (either via <tt>--write-bitmap-index</tt> or
+        <tt>pack.writeBitmaps</tt>).
 </p>
 </dd>
 <dt class="hdlist1">
@@ -5959,6 +6057,18 @@ transfer.unpackLimit
         When <tt>fetch.unpackLimit</tt> or <tt>receive.unpackLimit</tt> are
         not set, the value of this variable is used instead.
         The default value is 100.
+</p>
+</dd>
+<dt class="hdlist1">
+uploadarchive.allowUnreachable
+</dt>
+<dd>
+<p>
+        If true, allow clients to use <tt>git archive --remote</tt> to request
+        any tree, whether reachable from the ref tips or not. See the
+        discussion in the <tt>SECURITY</tt> section of
+        <a href="git-upload-archive.html">git-upload-archive(1)</a> for more details. Defaults to
+        <tt>false</tt>.
 </p>
 </dd>
 <dt class="hdlist1">

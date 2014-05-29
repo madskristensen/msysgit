@@ -1089,6 +1089,17 @@ which makes little sense.</p></div>
 </p>
 </dd>
 <dt class="hdlist1">
+-S[&lt;keyid&gt;]
+</dt>
+<dt class="hdlist1">
+--gpg-sign[=&lt;keyid&gt;]
+</dt>
+<dd>
+<p>
+        GPG-sign commits.
+</p>
+</dd>
+<dt class="hdlist1">
 -q
 </dt>
 <dt class="hdlist1">
@@ -1346,10 +1357,10 @@ successfully without needing to "revert the reversion" (see the
 <div class="sect1">
 <h2 id="_merge_strategies">MERGE STRATEGIES</h2>
 <div class="sectionbody">
-<div class="paragraph"><p>The merge mechanism (<em>git-merge</em> and <em>git-pull</em> commands) allows the
+<div class="paragraph"><p>The merge mechanism (<tt>git merge</tt> and <tt>git pull</tt> commands) allows the
 backend <em>merge strategies</em> to be chosen with <tt>-s</tt> option.  Some strategies
 can also take their own options, which can be passed by giving <tt>-X&lt;option&gt;</tt>
-arguments to <em>git-merge</em> and/or <em>git-pull</em>.</p></div>
+arguments to <tt>git merge</tt> and/or <tt>git pull</tt>.</p></div>
 <div class="dlist"><dl>
 <dt class="hdlist1">
 resolve
@@ -1374,7 +1385,7 @@ recursive
         merged tree of the common ancestors and uses that as
         the reference tree for the 3-way merge.  This has been
         reported to result in fewer merge conflicts without
-        causing mis-merges by tests done on actual merge commits
+        causing mismerges by tests done on actual merge commits
         taken from Linux 2.6 kernel development history.
         Additionally this can detect and handle merges involving
         renames.  This is the default merge strategy when
@@ -1961,7 +1972,7 @@ reorder commits tend to produce counterintuitive results.</p></div>
 <div id="footnotes"><hr /></div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2013-12-27 16:32:55 PST
+Last updated 2014-02-27 15:06:29 PST
 </div>
 </div>
 </body>

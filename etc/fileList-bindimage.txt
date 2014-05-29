@@ -23,6 +23,7 @@ bin/cut.exe
 bin/date.exe
 bin/diff.exe
 bin/dirname.exe
+bin/dos2unix.exe
 bin/du.exe
 bin/env.exe
 bin/expr.exe
@@ -129,6 +130,7 @@ bin/tr.exe
 bin/true.exe
 bin/uname.exe
 bin/uniq.exe
+bin/unix2dos.exe
 bin/unzip.exe
 bin/wc.exe
 bin/wish.exe

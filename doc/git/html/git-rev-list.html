@@ -796,6 +796,7 @@ git-rev-list(1) Manual Page
              [ --reverse ]
              [ --walk-reflogs ]
              [ --no-walk ] [ --do-walk ]
+             [ --use-bitmap-index ]
              &lt;commit&gt;&#8230; [ -- &lt;paths&gt;&#8230; ]</pre>
 <div class="attribution">
 </div></div>
@@ -1262,7 +1263,7 @@ list.</p></div>
         reflog entries from the most recent one to older ones.
         When this option is used you cannot specify commits to
         exclude (that is, <em>&#94;commit</em>, <em>commit1..commit2</em>,
-        nor <em>commit1...commit2</em> notations cannot be used).
+        and <em>commit1...commit2</em> notations cannot be used).
 </p>
 <div class="paragraph"><p>With <tt>--pretty</tt> format other than <tt>oneline</tt> (for obvious reasons),
 this causes the output to have two extra lines of information
@@ -1290,6 +1291,16 @@ See also <a href="git-reflog.html">git-reflog(1)</a>.</p></div>
 <p>
         Output excluded boundary commits. Boundary commits are
         prefixed with <tt>-</tt>.
+</p>
+</dd>
+<dt class="hdlist1">
+--use-bitmap-index
+</dt>
+<dd>
+<p>
+        Try to speed up the traversal using the pack bitmap index (if
+        one is available). Note that when traversing with <tt>--objects</tt>,
+        trees and blobs will not have their associated path printed.
 </p>
 </dd>
 </dl></div>
@@ -1926,7 +1937,7 @@ people using 80-column terminals.</p></div>
         Show the notes (see <a href="git-notes.html">git-notes(1)</a>) that annotate the
         commit, when showing the commit log message.  This is the default
         for <tt>git log</tt>, <tt>git show</tt> and <tt>git whatchanged</tt> commands when
-        there is no <tt>--pretty</tt>, <tt>--format</tt> nor <tt>--oneline</tt> option given
+        there is no <tt>--pretty</tt>, <tt>--format</tt>, or <tt>--oneline</tt> option given
         on the command line.
 </p>
 <div class="paragraph"><p>By default, the notes shown are from the notes refs listed in the
@@ -2083,6 +2094,18 @@ format, often found in email messages.</p></div>
 <tt>--date-order</tt> option may also be specified.</p></div>
 </dd>
 <dt class="hdlist1">
+--show-linear-break[=&lt;barrier&gt;]
+</dt>
+<dd>
+<p>
+        When --graph is not used, all history branches are flattened
+        which can make it hard to see that the two consecutive commits
+        do not belong to a linear branch. This option puts a barrier
+        in between them in that case. If <tt>&lt;barrier&gt;</tt> is specified, it
+        is the string that will be shown instead of the default one.
+</p>
+</dd>
+<dt class="hdlist1">
 --count
 </dt>
 <dd>
@@ -2226,7 +2249,7 @@ Subject: [PATCH] &lt;title line&gt;</tt></pre>
 stored in the commit object.  Notably, the SHA-1s are
 displayed in full, regardless of whether --abbrev or
 --no-abbrev are used, and <em>parents</em> information show the
-true parent commits, without taking grafts nor history
+true parent commits, without taking grafts or history
 simplification into account.</p></div>
 </li>
 <li>
@@ -2623,7 +2646,7 @@ $ git log -2 --pretty=%h 4da45bef</tt></pre>
 <div id="footnotes"><hr /></div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2013-08-20 08:40:27 PDT
+Last updated 2014-02-27 15:06:29 PST
 </div>
 </div>
 </body>

@@ -755,7 +755,7 @@ git-commit(1) Manual Page
            [-F &lt;file&gt; | -m &lt;msg&gt;] [--reset-author] [--allow-empty]
            [--allow-empty-message] [--no-verify] [-e] [--author=&lt;author&gt;]
            [--date=&lt;date&gt;] [--cleanup=&lt;mode&gt;] [--[no-]status]
-           [-i | -o] [-S[&lt;keyid&gt;]] [--] [&lt;file&gt;&#8230;]</pre>
+           [-i | -o] [-S[&lt;key-id&gt;]] [--] [&lt;file&gt;&#8230;]</pre>
 <div class="attribution">
 </div></div>
 </div>
@@ -1067,7 +1067,7 @@ that, you can recover from it with <em>git reset</em>.</p></div>
 <p>
         This option determines how the supplied commit message should be
         cleaned up before committing.  The <em>&lt;mode&gt;</em> can be <tt>strip</tt>,
-        <tt>whitespace</tt>, <tt>verbatim</tt>, or <tt>default</tt>.
+        <tt>whitespace</tt>, <tt>verbatim</tt>, <tt>scissors</tt> or <tt>default</tt>.
 </p>
 <div class="openblock">
 <div class="content">
@@ -1095,6 +1095,18 @@ verbatim
 <dd>
 <p>
         Do not change the message at all.
+</p>
+</dd>
+<dt class="hdlist1">
+scissors
+</dt>
+<dd>
+<p>
+        Same as <tt>whitespace</tt>, except that everything from (and
+        including) the line
+        "<tt># ------------------------ &gt;8 ------------------------</tt>"
+        is truncated if the message is to be edited. "<tt>#</tt>" can be
+        customized with core.commentChar.
 </p>
 </dd>
 <dt class="hdlist1">
@@ -1305,6 +1317,15 @@ configuration variable documented in <a href="git-config.html">git-config(1)</a>
 <dd>
 <p>
         GPG-sign commit.
+</p>
+</dd>
+<dt class="hdlist1">
+--no-gpg-sign
+</dt>
+<dd>
+<p>
+        Countermand <tt>commit.gpgsign</tt> configuration variable that is
+        set to force each and every commit to be signed.
 </p>
 </dd>
 <dt class="hdlist1">
@@ -1605,7 +1626,7 @@ information.</p></div>
 <div id="footnotes"><hr /></div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2013-08-20 08:40:27 PDT
+Last updated 2014-04-08 12:47:26 PDT
 </div>
 </div>
 </body>

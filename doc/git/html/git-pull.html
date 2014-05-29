@@ -963,14 +963,13 @@ merge.</p></div>
 </dt>
 <dd>
 <p>
-        Produce the working tree and index state as if a real
-        merge happened (except for the merge information),
-        but do not actually make a commit or
-        move the <tt>HEAD</tt>, nor record <tt>$GIT_DIR/MERGE_HEAD</tt> to
-        cause the next <tt>git commit</tt> command to create a merge
-        commit.  This allows you to create a single commit on
-        top of the current branch whose effect is the same as
-        merging another branch (or more in case of an octopus).
+        Produce the working tree and index state as if a real merge
+        happened (except for the merge information), but do not actually
+        make a commit, move the <tt>HEAD</tt>, or record <tt>$GIT_DIR/MERGE_HEAD</tt>
+        (to cause the next <tt>git commit</tt> command to create a merge
+        commit).  This allows you to create a single commit on top of
+        the current branch whose effect is the same as merging another
+        branch (or more in case of an octopus).
 </p>
 <div class="paragraph"><p>With --no-squash perform the merge and commit the result. This
 option can be used to override --squash.</p></div>
@@ -1539,10 +1538,10 @@ refspecs, if you don&#8217;t provide one on the command line.
 <div class="sect1">
 <h2 id="_merge_strategies">MERGE STRATEGIES</h2>
 <div class="sectionbody">
-<div class="paragraph"><p>The merge mechanism (<em>git-merge</em> and <em>git-pull</em> commands) allows the
+<div class="paragraph"><p>The merge mechanism (<tt>git merge</tt> and <tt>git pull</tt> commands) allows the
 backend <em>merge strategies</em> to be chosen with <tt>-s</tt> option.  Some strategies
 can also take their own options, which can be passed by giving <tt>-X&lt;option&gt;</tt>
-arguments to <em>git-merge</em> and/or <em>git-pull</em>.</p></div>
+arguments to <tt>git merge</tt> and/or <tt>git pull</tt>.</p></div>
 <div class="dlist"><dl>
 <dt class="hdlist1">
 resolve
@@ -1567,7 +1566,7 @@ recursive
         merged tree of the common ancestors and uses that as
         the reference tree for the 3-way merge.  This has been
         reported to result in fewer merge conflicts without
-        causing mis-merges by tests done on actual merge commits
+        causing mismerges by tests done on actual merge commits
         taken from Linux 2.6 kernel development history.
         Additionally this can detect and handle merges involving
         renames.  This is the default merge strategy when

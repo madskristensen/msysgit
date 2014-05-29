@@ -755,7 +755,7 @@ git-am(1) Manual Page
          [--ignore-date] [--ignore-space-change | --ignore-whitespace]
          [--whitespace=&lt;option&gt;] [-C&lt;n&gt;] [-p&lt;n&gt;] [--directory=&lt;dir&gt;]
          [--exclude=&lt;path&gt;] [--include=&lt;path&gt;] [--reject] [-q | --quiet]
-         [--[no-]scissors]
+         [--[no-]scissors] [-S[&lt;keyid&gt;]] [--patch-format=&lt;format&gt;]
          [(&lt;mbox&gt; | &lt;Maildir&gt;)&#8230;]
 <em>git am</em> (--continue | --skip | --abort)</pre>
 <div class="attribution">
@@ -935,6 +935,17 @@ default.   You can use <tt>--no-utf8</tt> to override this.</p></div>
 </p>
 </dd>
 <dt class="hdlist1">
+--patch-format
+</dt>
+<dd>
+<p>
+        By default the command will try to detect the patch format
+        automatically. This option allows the user to bypass the automatic
+        detection and specify the patch format that the patch(es) should be
+        interpreted as. Valid formats are mbox, stgit, stgit-series and hg.
+</p>
+</dd>
+<dt class="hdlist1">
 -i
 </dt>
 <dt class="hdlist1">
@@ -976,6 +987,17 @@ default.   You can use <tt>--no-utf8</tt> to override this.</p></div>
 <p>
         Skip the current patch.  This is only meaningful when
         restarting an aborted patch.
+</p>
+</dd>
+<dt class="hdlist1">
+-S[&lt;keyid&gt;]
+</dt>
+<dt class="hdlist1">
+--gpg-sign[=&lt;keyid&gt;]
+</dt>
+<dd>
+<p>
+        GPG-sign commits.
 </p>
 </dd>
 <dt class="hdlist1">
@@ -1086,6 +1108,14 @@ errors in the "From:" lines).</p></div>
 </div>
 </div>
 <div class="sect1">
+<h2 id="_hooks">HOOKS</h2>
+<div class="sectionbody">
+<div class="paragraph"><p>This command can run <tt>applypatch-msg</tt>, <tt>pre-applypatch</tt>,
+and <tt>post-applypatch</tt> hooks.  See <a href="githooks.html">githooks(5)</a> for more
+information.</p></div>
+</div>
+</div>
+<div class="sect1">
 <h2 id="_see_also">SEE ALSO</h2>
 <div class="sectionbody">
 <div class="paragraph"><p><a href="git-apply.html">git-apply(1)</a>.</p></div>
@@ -1101,7 +1131,7 @@ errors in the "From:" lines).</p></div>
 <div id="footnotes"><hr /></div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2013-08-20 08:40:27 PDT
+Last updated 2014-03-25 12:54:14 PDT
 </div>
 </div>
 </body>
