@@ -184,6 +184,7 @@ libexec/git-core/git-hash-object.exe
 libexec/git-core/git-help.exe
 libexec/git-core/git-http-backend.exe
 libexec/git-core/git-http-fetch.exe
+libexec/git-core/git-http-push.exe
 libexec/git-core/git-imap-send.exe
 libexec/git-core/git-index-pack.exe
 libexec/git-core/git-init-db.exe
